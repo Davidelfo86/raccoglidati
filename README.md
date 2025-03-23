@@ -255,10 +255,10 @@
     <div id="messageBox"></div>
 
     <div class="button-container">
-        <button onclick="apriLens()" class="btn-camera">
-            📸 Scan con Google Lens
-        </button>
-    </div>
+    <button onclick="apriKeep()" class="btn-camera">
+        📝 Scan con Google Keep
+    </button>
+</div>
 
     <table id="mainTable">
         <tr>
@@ -386,16 +386,17 @@
         themeToggle.addEventListener('change', toggleTheme);
         toggleTheme();
 
-        // Funzione Google Lens
-        function apriLens() {
-            window.open('https://lens.google.com', '_blank');
-            mostraMessaggio(`
-                📸 Come utilizzare Google Lens:
-                1. Scatta la foto della tabella
-                2. Seleziona il testo dei cavalli e quote
-                3. Copia e incolla nei campi corrispondenti
-            `, 'info');
-        }
+        function apriKeep() {
+    window.open('https://keep.google.com', '_blank');
+    mostraMessaggio(`
+        📝 Come usare Google Keep:
+        1. Apri "Nuova nota con immagine"
+        2. Scatta la foto della tabella
+        3. Clicca sui tre puntini (⋮)
+        4. Scegli "Copia testo da immagine"
+        5. Incolla nei campi della tabella
+    `, 'info');
+}
 
         // Gestione visibilità log
         function toggleLogDati() {
