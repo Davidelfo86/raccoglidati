@@ -14,7 +14,7 @@
             --button-secondary: #2196F3;
             --alert-warning: #f44336;
             --alert-info: #2196F3;
-            --lens-color: #4285F4;
+            --keep-color: #fbbc04;
         }
 
         :root[data-theme="dark"] {
@@ -26,7 +26,7 @@
             --button-secondary: #1976d2;
             --alert-warning: #d32f2f;
             --alert-info: #1976d2;
-            --lens-color: #4285F4;
+            --keep-color: #fbbc04;
         }
 
         body {
@@ -39,7 +39,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Header e controlli */
         .header-controls {
             display: flex;
             justify-content: space-between;
@@ -100,7 +99,6 @@
             transform: translateX(26px);
         }
 
-        /* Tabella principale */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -137,7 +135,6 @@
             width: 32%;
         }
 
-        /* Input e Select */
         input, select {
             width: 90%;
             padding: 8px;
@@ -147,7 +144,11 @@
             color: var(--text-color);
         }
 
-        /* Bottoni */
+        input::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
         .button-container {
             display: flex;
             gap: 10px;
@@ -177,7 +178,7 @@
         }
 
         .btn-camera {
-            background-color: var(--lens-color);
+            background-color: var(--keep-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -185,7 +186,6 @@
             font-weight: bold;
         }
 
-        /* Alert Messages */
         .alert {
             padding: 15px;
             margin: 10px 0;
@@ -201,7 +201,6 @@
             background-color: var(--alert-info);
         }
 
-        /* Mobile Responsive */
         @media screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -255,10 +254,10 @@
     <div id="messageBox"></div>
 
     <div class="button-container">
-    <button onclick="apriKeep()" class="btn-camera">
-        📝 Scan con Google Keep
-    </button>
-</div>
+        <button onclick="apriKeep()" class="btn-camera">
+            📝 Scan con Google Keep
+        </button>
+    </div>
 
     <table id="mainTable">
         <tr>
@@ -270,7 +269,7 @@
         </tr>
         <tr>
             <td>1</td>
-            <td><input type="text" class="cavalli-input"></td>
+            <td><input type="text" class="cavalli-input" placeholder="✂️ Incolla qui i dati della tabella..."></td>
             <td><input type="number" inputmode="decimal" class="primo-input"></td>
             <td><input type="number" inputmode="decimal" class="secondo-input"></td>
             <td><input type="number" inputmode="decimal" class="terzo-input"></td>
@@ -386,17 +385,60 @@
         themeToggle.addEventListener('change', toggleTheme);
         toggleTheme();
 
+        // Funzione Google Keep
         function apriKeep() {
-    window.open('https://keep.google.com', '_blank');
-    mostraMessaggio(`
-        📝 Come usare Google Keep:
-        1. Apri "Nuova nota con immagine"
-        2. Scatta la foto della tabella
-        3. Clicca sui tre puntini (⋮)
-        4. Scegli "Copia testo da immagine"
-        5. Incolla nei campi della tabella
-    `, 'info');
-}
+            window.open('https://keep.google.com', '_blank');
+            mostraMessaggio(`
+                📝 Come usare Google Keep:
+                1. Apri "Nuova nota con immagine"
+                2. Scatta la foto della tabella
+                3. Clicca sui tre puntini (⋮)
+                4. Scegli "Copia testo da immagine"
+                5. Incolla nella prima casella della tabella
+            `, 'info');
+        }
+
+        // Auto-compilazione al momento dell'incollaggio
+        document.querySelector('.cavalli-input').addEventListener('paste', function(e) {
+            e.preventDefault();
+            
+            // Ottieni il testo incollato
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            
+            try {
+                // Dividi il testo in righe
+                const righe = text.split('\n').filter(riga => riga.trim());
+                
+                // Per ogni riga, trova i valori
+                righe.forEach((riga, index) => {
+                    if (index < 6) { // Solo per le prime 6 righe
+                        // Divide la riga in parole/numeri
+                        const valori = riga.trim().split(/\s+/);
+                        
+                        // Trova gli input della riga corrente
+                        const inputs = document.querySelectorAll(`#mainTable tr:nth-child(${index + 2}) input`);
+                        
+                        // Nome cavallo (prende tutto fino all'ultimo gruppo di numeri)
+                        const numeriIndex = valori.findIndex(val => /^\d+([.,]\d+)?$/.test(val));
+                        const nomeCavallo = valori.slice(0, numeriIndex).join(' ');
+                        
+                        // Quote (ultimi tre numeri)
+                        const quote = valori.slice(-3);
+                        
+                        // Compila i campi
+                        if (inputs[0]) inputs[0].value = nomeCavallo.trim();
+                        if (inputs[1] && quote[0]) inputs[1].value = quote[0].replace(',', '.');
+                        if (inputs[2] && quote[1]) inputs[2].value = quote[1].replace(',', '.');
+                        if (inputs[3] && quote[2]) inputs[3].value = quote[2].replace(',', '.');
+                    }
+                });
+
+                mostraMessaggio('✅ Dati incollati con successo!', 'info');
+            } catch (error) {
+                console.error('Errore nell\'elaborazione del testo:', error);
+                mostraMessaggio('⚠️ Errore nell\'elaborazione del testo incollato', 'warning');
+            }
+        });
 
         // Gestione visibilità log
         function toggleLogDati() {
@@ -418,34 +460,6 @@
             });
             
             aggiornaLogDati(corsaOrdinate);
-        }
-
-        async function salvaInGoogleSheets(corsa) {
-            try {
-                const response = await fetch(SHEETS_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        ...corsa,
-                        trisVincente: "'" + corsa.trisVincente
-                    })
-                });
-                return true;
-            } catch (error) {
-                console.error('Errore nel salvataggio:', error);
-                return false;
-            }
-        }
-
-        function mostraMessaggio(messaggio, tipo) {
-            const messageBox = document.getElementById('messageBox');
-            messageBox.innerHTML = `<div class="alert alert-${tipo}">${messaggio}</div>`;
-            setTimeout(() => {
-                messageBox.innerHTML = '';
-            }, 8000); // Aumentato a 8 secondi per le istruzioni di Google Lens
         }
 
         function cercaGara() {
@@ -481,6 +495,34 @@
             if (!trovata) {
                 mostraMessaggio('🔍 Nessuna corsa simile trovata nel database', 'warning');
             }
+        }
+
+        async function salvaInGoogleSheets(corsa) {
+            try {
+                const response = await fetch(SHEETS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...corsa,
+                        trisVincente: "'" + corsa.trisVincente
+                    })
+                });
+                return true;
+            } catch (error) {
+                console.error('Errore nel salvataggio:', error);
+                return false;
+            }
+        }
+
+        function mostraMessaggio(messaggio, tipo) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.innerHTML = `<div class="alert alert-${tipo}">${messaggio}</div>`;
+            setTimeout(() => {
+                messageBox.innerHTML = '';
+            }, 5000);
         }
 
         async function salvaDati() {
