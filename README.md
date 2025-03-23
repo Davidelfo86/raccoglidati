@@ -1,10 +1,8 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html data-theme="light">
 <head>
     <title>Corse Cavalli</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <!-- Aggiungiamo Tesseract.js per OCR -->
-    <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
     <style>
         /* Variabili tema chiaro/scuro */
         :root[data-theme="light"] {
@@ -16,6 +14,7 @@
             --button-secondary: #2196F3;
             --alert-warning: #f44336;
             --alert-info: #2196F3;
+            --lens-color: #4285F4;
         }
 
         :root[data-theme="dark"] {
@@ -27,6 +26,7 @@
             --button-secondary: #1976d2;
             --alert-warning: #d32f2f;
             --alert-info: #1976d2;
+            --lens-color: #4285F4;
         }
 
         body {
@@ -49,45 +49,6 @@
             gap: 10px;
         }
 
-        .controls-container {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        /* Loader per OCR */
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0a(0,0,0,0.8);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 20px;
-            z-index: 1000;
-        }
-
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Theme switch */
         .theme-switch {
             display: flex;
             align-items: center;
@@ -157,6 +118,35 @@
             background-color: var(--header-bg);
         }
 
+        table th:nth-child(3),
+        table th:nth-child(4),
+        table th:nth-child(5),
+        table td:nth-child(3),
+        table td:nth-child(4),
+        table td:nth-child(5) {
+            width: 10%;
+        }
+
+        table th:nth-child(1),
+        table td:nth-child(1) {
+            width: 5%;
+        }
+
+        table th:nth-child(2),
+        table td:nth-child(2) {
+            width: 32%;
+        }
+
+        /* Input e Select */
+        input, select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
         /* Bottoni */
         .button-container {
             display: flex;
@@ -172,9 +162,6 @@
             border-radius: 4px;
             cursor: pointer;
             transition: opacity 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         button:hover {
@@ -190,20 +177,15 @@
         }
 
         .btn-camera {
-            background-color: var(--button-secondary);
+            background-color: var(--lens-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: bold;
         }
 
-        /* Input fields */
-        input, select {
-            width: 90%;
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-
-        /* Alert messages */
+        /* Alert Messages */
         .alert {
             padding: 15px;
             margin: 10px 0;
@@ -219,7 +201,7 @@
             background-color: var(--alert-info);
         }
 
-        /* Responsive design */
+        /* Mobile Responsive */
         @media screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -240,18 +222,19 @@
             }
 
             button {
-                padding: 8px 16px;
-                font-size: 14px;
                 width: 100%;
+                padding: 12px;
+                font-size: 14px;
                 justify-content: center;
+            }
+
+            .btn-camera {
+                padding: 15px;
+                font-size: 16px;
             }
 
             .header-controls {
                 flex-direction: column;
-            }
-
-            .controls-container {
-                width: 100%;
             }
         }
     </style>
@@ -259,29 +242,21 @@
 <body>
     <div class="header-controls">
         <h1>Corse Cavalli</h1>
-        <div class="controls-container">
-            <div class="theme-switch">
-                <span>☀️</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="themeToggle">
-                    <span class="slider"></span>
-                </label>
-                <span>🌙</span>
-            </div>
+        <div class="theme-switch">
+            <span>☀️</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider"></span>
+            </label>
+            <span>🌙</span>
         </div>
     </div>
     
     <div id="messageBox"></div>
 
-    <!-- Loader per OCR -->
-    <div id="loading" class="loading" style="display: none;">
-        <div class="loading-spinner"></div>
-        <div id="loadingText">Elaborazione immagine...</div>
-    </div>
-
     <div class="button-container">
-        <button onclick="apriCamera()" class="btn-camera">
-            📸 Scan Tabella
+        <button onclick="apriLens()" class="btn-camera">
+            📸 Scan con Google Lens
         </button>
     </div>
 
@@ -411,71 +386,15 @@
         themeToggle.addEventListener('change', toggleTheme);
         toggleTheme();
 
-        // Funzione per la fotocamera e OCR
-        async function apriCamera() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.capture = 'environment';
-            
-            input.onchange = async function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    // Mostra loader
-                    document.getElementById('loading').style.display = 'flex';
-                    document.getElementById('loadingText').textContent = 'Elaborazione immagine...';
-                    
-                    try {
-                        // Inizializza Tesseract
-                        const worker = await Tesseract.createWorker();
-                        await worker.loadLanguage('ita');
-                        await worker.initialize('ita');
-                        
-                        // Riconosci il testo
-                        document.getElementById('loadingText').textContent = 'Riconoscimento testo...';
-                        const { data: { text } } = await worker.recognize(file);
-                        await worker.terminate();
-
-                        // Analizza e compila i campi
-                        compilaCampi(text);
-                        
-                        // Nascondi loader e mostra successo
-                        document.getElementById('loading').style.display = 'none';
-                        mostraMessaggio('✅ Dati inseriti automaticamente!', 'info');
-                    } catch (error) {
-                        console.error('Errore OCR:', error);
-                        document.getElementById('loading').style.display = 'none';
-                        mostraMessaggio('⚠️ Errore nel riconoscimento del testo', 'warning');
-                    }
-                }
-            };
-            
-            input.click();
-        }
-
-        function compilaCampi(text) {
-            // Dividi il testo in righe
-            const righe = text.split('\n');
-            let indiceRiga = 0;
-            
-            righe.forEach(riga => {
-                if (indiceRiga < 6) {
-                    // Cerca pattern di numeri e testo
-                    const matches = riga.match(/([A-Za-z\s]+)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)/);
-                    if (matches) {
-                        const [, cavallo, quota1, quota2, quota3] = matches;
-                        
-                        // Trova gli input della riga corrente
-                        const inputs = document.querySelectorAll(`#mainTable tr:nth-child(${indiceRiga + 2}) input`);
-                        inputs[0].value = cavallo.trim();
-                        inputs[1].value = quota1;
-                        inputs[2].value = quota2;
-                        inputs[3].value = quota3;
-                        
-                        indiceRiga++;
-                    }
-                }
-            });
+        // Funzione Google Lens
+        function apriLens() {
+            window.open('https://lens.google.com', '_blank');
+            mostraMessaggio(`
+                📸 Come utilizzare Google Lens:
+                1. Scatta la foto della tabella
+                2. Seleziona il testo dei cavalli e quote
+                3. Copia e incolla nei campi corrispondenti
+            `, 'info');
         }
 
         // Gestione visibilità log
@@ -525,7 +444,7 @@
             messageBox.innerHTML = `<div class="alert alert-${tipo}">${messaggio}</div>`;
             setTimeout(() => {
                 messageBox.innerHTML = '';
-            }, 5000);
+            }, 8000); // Aumentato a 8 secondi per le istruzioni di Google Lens
         }
 
         function cercaGara() {
@@ -563,7 +482,111 @@
             }
         }
 
-        // ... resto del codice JavaScript (salvaDati, aggiornaLogDati, eliminaCorsa, pulisciForm) rimane uguale ...
+        async function salvaDati() {
+            const primo = document.getElementById('primoTris').value;
+            const secondo = document.getElementById('secondoTris').value;
+            const terzo = document.getElementById('terzoTris').value;
+
+            if (!primo || !secondo || !terzo) {
+                mostraMessaggio('⚠️ Seleziona tutti i numeri della tris!', 'warning');
+                return;
+            }
+
+            const data = new Date().toLocaleDateString('it-IT', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            
+            const corsa = {
+                id: Date.now(),
+                data: data,
+                trisVincente: `${primo}-${secondo}-${terzo}`,
+                dati: []
+            };
+
+            for (let i = 1; i < 7; i++) {
+                const riga = document.querySelectorAll('#mainTable tr')[i];
+                const inputs = riga.querySelectorAll('input');
+                const numero = riga.cells[0].textContent;
+                corsa.dati.push({
+                    numero: numero,
+                    cavalli: inputs[0].value,
+                    primo: inputs[1].value,
+                    secondo: inputs[2].value,
+                    terzo: inputs[3].value
+                });
+            }
+
+            if (corsa.dati.every(riga => !riga.cavalli)) {
+                mostraMessaggio('⚠️ Inserisci almeno un cavallo!', 'warning');
+                return;
+            }
+
+            mostraMessaggio('⌛ Salvataggio in corso...', 'info');
+
+            const salvataggioOk = await salvaInGoogleSheets(corsa);
+            
+            if (salvataggioOk) {
+                corse.push(corsa);
+                localStorage.setItem('corse', JSON.stringify(corse));
+                aggiornaLogDati();
+                pulisciForm();
+                mostraMessaggio('✅ Corsa salvata con successo!', 'info');
+            }
+        }
+
+        function aggiornaLogDati(corseDaMostrare = corse) {
+            const logDiv = document.getElementById('logDati');
+            logDiv.innerHTML = '';
+            
+            corseDaMostrare.forEach(corsa => {
+                const corsaDiv = document.createElement('div');
+                corsaDiv.style.marginBottom = '20px';
+                corsaDiv.style.borderBottom = '1px solid var(--border-color)';
+                
+                corsaDiv.innerHTML = `
+                    <p><strong>Data: ${corsa.data}</strong> | Tris: ${corsa.trisVincente}</p>
+                    <table style="width: 100%; margin-bottom: 10px;">
+                        <tr>
+                            <th>Numero</th>
+                            <th>Cavalli</th>
+                            <th>1°posto</th>
+                            <th>2°posto</th>
+                            <th>3°posto</th>
+                        </tr>
+                        ${corsa.dati.map(riga => `
+                            <tr>
+                                <td>${riga.numero}</td>
+                                <td>${riga.cavalli}</td>
+                                <td>${riga.primo}</td>
+                                <td>${riga.secondo}</td>
+                                <td>${riga.terzo}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                    <button onclick="eliminaCorsa(${corsa.id})" class="btn-cerca">Elimina</button>
+                `;
+                logDiv.appendChild(corsaDiv);
+            });
+        }
+
+        function eliminaCorsa(id) {
+            if (confirm('Sei sicuro di voler eliminare questa corsa?')) {
+                corse = corse.filter(corsa => corsa.id !== id);
+                localStorage.setItem('corse', JSON.stringify(corse));
+                aggiornaLogDati();
+                mostraMessaggio('✅ Corsa eliminata con successo', 'info');
+            }
+        }
+
+        function pulisciForm() {
+            const inputs = document.querySelectorAll('#mainTable input');
+            inputs.forEach(input => input.value = '');
+            document.getElementById('primoTris').value = '';
+            document.getElementById('secondoTris').value = '';
+            document.getElementById('terzoTris').value = '';
+        }
 
         window.onload = function() {
             aggiornaLogDati();
