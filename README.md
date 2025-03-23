@@ -201,6 +201,24 @@
             background-color: var(--alert-info);
         }
 
+        /* Loader per sincronizzazione */
+        .sync-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: var(--button-secondary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .sync-indicator.visible {
+            opacity: 1;
+        }
+
         @media screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -252,6 +270,7 @@
     </div>
     
     <div id="messageBox"></div>
+    <div id="syncIndicator" class="sync-indicator">🔄 Sincronizzazione...</div>
 
     <div class="button-container">
         <button onclick="apriKeep()" class="btn-camera">
@@ -307,7 +326,7 @@
             <td><input type="text" class="cavalli-input"></td>
             <td><input type="number" inputmode="decimal" class="primo-input"></td>
             <td><input type="number" inputmode="decimal" class="secondo-input"></td>
-            <td><input type="number" inputmode="decimal" class="terzo-input"></td>
+            <td><input type="numberber" inputmode="decimal" class="terzo-input"></td>
         </tr>
         <tr class="tris-row">
             <td></td>
@@ -369,7 +388,25 @@
     </div>
     <script>
         let corse = JSON.parse(localStorage.getItem('corse')) || [];
-        const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxLFkI2fU329vYO1Q73rsorW3SLIt8lKO4PpvxyuHZZuZOnHm5BsY2Jg92lRxhxXsf5/exec';
+        const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzt_F4vvcyy5F5mE-IMhO-RjJOd_VIiiRnObGxRVa_qx92FZ92xxftr6rQCW9Z5KcUR/exec';
+
+        // Funzione per sincronizzare con Google Sheets
+        async function leggiDaGoogleSheets() {
+            try {
+                document.getElementById('syncIndicator').classList.add('visible');
+                const response = await fetch(SHEETS_URL + '?action=read');
+                const data = await response.json();
+                if (data && data.corse) {
+                    corse = data.corse;
+                    localStorage.setItem('corse', JSON.stringify(corse));
+                    aggiornaLogDati();
+                }
+                document.getElementById('syncIndicator').classList.remove('visible');
+            } catch (error) {
+                console.error('Errore nella sincronizzazione:', error);
+                document.getElementById('syncIndicator').classList.remove('visible');
+            }
+        }
 
         // Gestione tema
         const themeToggle = document.getElementById('themeToggle');
@@ -402,30 +439,20 @@
         document.querySelector('.cavalli-input').addEventListener('paste', function(e) {
             e.preventDefault();
             
-            // Ottieni il testo incollato
             const text = (e.clipboardData || window.clipboardData).getData('text');
             
             try {
-                // Dividi il testo in righe
                 const righe = text.split('\n').filter(riga => riga.trim());
                 
-                // Per ogni riga, trova i valori
                 righe.forEach((riga, index) => {
-                    if (index < 6) { // Solo per le prime 6 righe
-                        // Divide la riga in parole/numeri
+                    if (index < 6) {
                         const valori = riga.trim().split(/\s+/);
-                        
-                        // Trova gli input della riga corrente
                         const inputs = document.querySelectorAll(`#mainTable tr:nth-child(${index + 2}) input`);
                         
-                        // Nome cavallo (prende tutto fino all'ultimo gruppo di numeri)
                         const numeriIndex = valori.findIndex(val => /^\d+([.,]\d+)?$/.test(val));
                         const nomeCavallo = valori.slice(0, numeriIndex).join(' ');
-                        
-                        // Quote (ultimi tre numeri)
                         const quote = valori.slice(-3);
                         
-                        // Compila i campi
                         if (inputs[0]) inputs[0].value = nomeCavallo.trim();
                         if (inputs[1] && quote[0]) inputs[1].value = quote[0].replace(',', '.');
                         if (inputs[2] && quote[1]) inputs[2].value = quote[1].replace(',', '.');
@@ -440,7 +467,14 @@
             }
         });
 
-        // Gestione visibilità log
+        function mostraMessaggio(messaggio, tipo) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.innerHTML = `<div class="alert alert-${tipo}">${messaggio}</div>`;
+            setTimeout(() => {
+                messageBox.innerHTML = '';
+            }, 5000);
+        }
+
         function toggleLogDati() {
             const logContainer = document.getElementById('logContainer');
             const toggleBtn = document.getElementById('toggleLogBtn');
@@ -450,7 +484,6 @@
             toggleBtn.textContent = isVisible ? 'Mostra Log' : 'Nascondi Log';
         }
 
-        // Ordinamento log
         function ordinaLog() {
             const sortOrder = document.getElementById('sortOrder').value;
             const corsaOrdinate = [...corse].sort((a, b) => {
@@ -497,36 +530,8 @@
             }
         }
 
-        async function salvaInGoogleSheets(corsa) {
-            try {
-                const response = await fetch(SHEETS_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        ...corsa,
-                        trisVincente: "'" + corsa.trisVincente
-                    })
-                });
-                return true;
-            } catch (error) {
-                console.error('Errore nel salvataggio:', error);
-                return false;
-            }
-        }
-
-        function mostraMessaggio(messaggio, tipo) {
-            const messageBox = document.getElementById('messageBox');
-            messageBox.innerHTML = `<div class="alert alert-${tipo}">${messaggio}</div>`;
-            setTimeout(() => {
-                messageBox.innerHTML = '';
-            }, 5000);
-        }
-
         async function salvaDati() {
-            const primo = document.getElementById('primoTris').value;
+               const primo = document.getElementById('primoTris').value;
             const secondo = document.getElementById('secondoTris').value;
             const terzo = document.getElementById('terzoTris').value;
 
@@ -568,14 +573,36 @@
 
             mostraMessaggio('⌛ Salvataggio in corso...', 'info');
 
-            const salvataggioOk = await salvaInGoogleSheets(corsa);
-            
-            if (salvataggioOk) {
+            try {
+                await salvaInGoogleSheets(corsa);
                 corse.push(corsa);
                 localStorage.setItem('corse', JSON.stringify(corse));
-                aggiornaLogDati();
+                await leggiDaGoogleSheets(); // Rilegge i dati per sincronizzare
                 pulisciForm();
                 mostraMessaggio('✅ Corsa salvata con successo!', 'info');
+            } catch (error) {
+                console.error('Errore nel salvataggio:', error);
+                mostraMessaggio('⚠️ Errore nel salvataggio', 'warning');
+            }
+        }
+
+        async function salvaInGoogleSheets(corsa) {
+            try {
+                const response = await fetch(SHEETS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...corsa,
+                        trisVincente: "'" + corsa.trisVincente
+                    })
+                });
+                return true;
+            } catch (error) {
+                console.error('Errore nel salvataggio:', error);
+                return false;
             }
         }
 
@@ -631,9 +658,13 @@
             document.getElementById('terzoTris').value = '';
         }
 
-        window.onload = function() {
-            aggiornaLogDati();
+        // Inizializzazione con sincronizzazione
+        window.onload = async function() {
+            await leggiDaGoogleSheets();
             toggleTheme();
+            
+            // Sincronizza ogni minuto
+            setInterval(leggiDaGoogleSheets, 60000);
         };
     </script>
 </body>
