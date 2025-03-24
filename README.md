@@ -434,38 +434,44 @@
                 5. Incolla nella prima casella della tabella
             `, 'info');
         }
+ocument.querySelector('.cavalli-input').addEventListener('paste', function(e) {
+    e.preventDefault();
+    
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    
+    try {
+        // Divide il testo usando i numeri da 1 a 6 come separatori
+        const pattern = /(\d)\s+([^0-9]+?)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/g;
+        let matches = [];
+        let match;
 
-        // Auto-compilazione al momento dell'incollaggio
-        document.querySelector('.cavalli-input').addEventListener('paste', function(e) {
-            e.preventDefault();
-            
-            const text = (e.clipboardData || window.clipboardData).getData('text');
-            
-            try {
-                const righe = text.split('\n').filter(riga => riga.trim());
-                
-                righe.forEach((riga, index) => {
-                    if (index < 6) {
-                        const valori = riga.trim().split(/\s+/);
-                        const inputs = document.querySelectorAll(`#mainTable tr:nth-child(${index + 2}) input`);
-                        
-                        const numeriIndex = valori.findIndex(val => /^\d+([.,]\d+)?$/.test(val));
-                        const nomeCavallo = valori.slice(0, numeriIndex).join(' ');
-                        const quote = valori.slice(-3);
-                        
-                        if (inputs[0]) inputs[0].value = nomeCavallo.trim();
-                        if (inputs[1] && quote[0]) inputs[1].value = quote[0].replace(',', '.');
-                        if (inputs[2] && quote[1]) inputs[2].value = quote[1].replace(',', '.');
-                        if (inputs[3] && quote[2]) inputs[3].value = quote[2].replace(',', '.');
-                    }
-                });
+        while ((match = pattern.exec(text)) !== null) {
+            const numeroRiga = parseInt(match[1]);
+            if (numeroRiga >= 1 && numeroRiga <= 6) {
+                matches[numeroRiga - 1] = {
+                    cavallo: match[2].trim(),
+                    quote: [match[3], match[4], match[5]]
+                };
+            }
+        }
 
-                mostraMessaggio('✅ Dati incollati con successo!', 'info');
-            } catch (error) {
-                console.error('Errore nell\'elaborazione del testo:', error);
-                mostraMessaggio('⚠️ Errore nell\'elaborazione del testo incollato', 'warning');
+        // Compila i campi
+        matches.forEach((dati, index) => {
+            if (dati) {
+                const inputs = document.querySelectorAll(`#mainTable tr:nth-child(${index + 2}) input`);
+                if (inputs[0]) inputs[0].value = dati.cavallo;
+                if (inputs[1]) inputs[1].value = dati.quote[0];
+                if (inputs[2]) inputs[2].value = dati.quote[1];
+                if (inputs[3]) inputs[3].value = dati.quote[2];
             }
         });
+
+        mostraMessaggio('✅ Dati incollati con successo!', 'info');
+    } catch (error) {
+        console.error('Errore nell\'elaborazione del testo:', error);
+        mostraMessaggio('⚠️ Errore nell\'elaborazione del testo incollato', 'warning');
+    }
+});
 
         function mostraMessaggio(messaggio, tipo) {
             const messageBox = document.getElementById('messageBox');
