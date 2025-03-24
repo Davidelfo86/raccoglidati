@@ -37,8 +37,7 @@
             color: var(--text-color);
             transition: all 0.3s ease;
         }
-
-        .header-controls {
+  .header-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -102,7 +101,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            border: 1px1px solid var(--border-color);
+            border: 1px solid var(--border-color);
         }
 
         th, td {
@@ -133,7 +132,6 @@
         table td:nth-child(2) {
             width: 32%;
         }
-
         input, select {
             width: 90%;
             padding: 8px;
@@ -169,7 +167,7 @@
         }
 
         .btn-salva {
-            background-color: var(--button-primary);
+            background-color: var(ar(--button-primary);
         }
 
         .btn-cerca {
@@ -241,8 +239,7 @@
             position: relative;
             width: 100%;
         }
-
-        @media screen and (max-width: 768px) {
+ @media screen and (max-width: 768px) {
             body {
                 padding: 10px;
                 font-size: 14px;
@@ -406,38 +403,11 @@
         <button onclick="cercaGara()" class="btn-cerca">Cerca Gara</button>
         <button onclick="cercaQuote()" class="btn-cerca">Cerca Quote</button>
         <button onclick="cercaCavallo()" class="btn-cerca">Cerca Cavallo</button>
+        <button onclick="azzeraRicerca()" class="btn-cerca">Azzera Ricerca</button>
         <button onclick="salvaDati()" class="btn-salva">Salva Corsa</button>
         <button onclick="toggleLogDati()" class="btn-toggle" id="toggleLogBtn">
             Nascondi Log
         </button>
-    </div>
-
-    <div class="log-container" id="logContainer">
-        <div class="log-controls">
-            <label>Ordina per: </label>
-            <select id="sortOrder" onchange="ordinaLog()">
-                <option value="newest">Più recenti</option>
-                <option value="oldest">Più vecchie</option>
-            </select>
-        </div>
-        <h3>Log Dati</h3>
-        <div id="logDati"></div>
-    </div>
-
-    <div id="risultatiRicerca" style="margin-top: 20px; display: none;">
-        <h3>Risultati Ricerca</h3>
-        <table id="tabellaRisultati" style="width:100%; border-collapse: collapse;">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Cavallo</th>
-                    <th>Quote</th>
-                    <th>Tris Vincente</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
     </div>
 <script>
     let corse = JSON.parse(localStorage.getItem('corse')) || [];
@@ -457,7 +427,7 @@
             document.getElementById('syncIndicator').classList.remove('visible');
         } catch (error) {
             console.error('Errore nella sincronizzazione:', error);
-            document.getElementById('syncIndicator').classListist.remove('visible');
+            document.getElementById('syncIndicator').classList.remove('visible');
         }
     }
 
@@ -477,7 +447,7 @@
 
     // Funzione Google Keep
     function apriKeep() {
-        window.open('https://keep.google.com', '_blank');
+        window.open('ht'https://keep.google.com', '_blank');
         mostraMessaggio(`
             📝 Come usare Google Keep:
             1. Apri "Nuova nota con in immagine"
@@ -489,7 +459,7 @@
     }
 
     // Auto-compilazione al momento dell'incollaggio
-    document.querySelector('.cavalli-input').addEventListener('paste', function(e) {
+    document.querySelector('.cavalli-input').addEveEventListener('paste', function(e) {
         e.preventDefault();
         
         const text = (e.clipboardData || window.clipboardData).getData('text');
@@ -519,7 +489,7 @@
                 }
             });
 
-            mostraMessaggio('✅ Dati incollati con successo!', 'info');
+            mostraMessaggio('✅ Dati incollati ti con successo!', 'info');
         } catch (error) {
             console.error('Errore nell\'elaborazione del testo:', error);
             mostraMessaggio('⚠️ Errore nell\'elaborazione del testo incollato', 'warning');
@@ -547,9 +517,19 @@
             mostraMessaggio('🔍 Nessun risultato trovato', 'warning');
         }
     }
- function cercaCavallo() {
-        const searchInput = document.querySelector('.cavalli-input').value.trim().toLowerCase();
-        
+
+    function cercaCavallo() {
+        const inputs = document.querySelectorAll('.cavalli-input');
+        let searchInput = '';
+        let corsiaRicerca = 0;
+
+        inputs.forEach((input, index) => {
+            if (input.value.trim()) {
+                searchInput = input.value.trim().toLowerCase();
+                corsiaRicerca = index + 1;
+            }
+        });
+
         if (!searchInput) {
             mostraMessaggio('⚠️ Inserisci il nome di un cavallo da cercare', 'warning');
             return;
@@ -557,19 +537,22 @@
 
         const risultati = [];
         corse.forEach(corsa => {
-            corsa.dati.forEach(riga => {
-                if (riga.cavalli.toLowerCase().includes(searchInput)) {
-                    risultati.push({
-                        data: corsa.data,
-                        cavallo: riga.cavalli,
-                        quote: `${riga.primo}-${riga.secondo}-${riga.terzo}`,
-                        tris: corsa.trisVincente
-                    });
-                }
-            });
+            const rigaCorrispondente = corsa.dati[corsiaRicerca - 1];
+            if (rigaCorrispondente && rigaCorrispondendente.cavalli.toLowerCase().includes(searchInput)) {
+                risultati.push({
+                    data: corsa.data,
+                    cavallo: rigaCorrispondente.cavalli,
+                    quote: `${rigaCorrispondente.primo}-${rigaCorrispondente.secondo}-${rigaCorrispondente.terzo}`,
+                    tris: corsa.trisVincente
+                });
+            }
         });
 
-        mostraRisultatiRicerca(risultati, `Risultati ricerca: ${searchInput}`);
+        if (risultati.length > 0) {
+            mostraRisultatiRicerca(risultati, `Risultati ricerca: ${searchInput} (Corsia ${corsiaRicerca})`);
+        } else {
+            mostraMessaggio(`🔍 Nessun risultato trovato per "${searchInput}" nella corsia ${corsiaRicerca}`, 'warning');
+        }
     }
 
     function cercaQuote() {
@@ -581,6 +564,7 @@
             const inputs = riga.querySelectorAll('input');
             if (inputs[1].value || inputs[2].value || inputs[3].value) {
                 quoteAttuali.push({
+                    numero: i,
                     primo: inputs[1].value,
                     secondo: inputs[2].value,
                     terzo: inputs[3].value
@@ -593,25 +577,82 @@
             return;
         }
 
-        const risultati = [];
-        for (let corsa of corse) {
-            corsa.dati.forEach(riga => {
-                quoteAttuali.forEach(quoteRiga => {
-                    if (riga.primo === quoteRiga.primo && 
-                        riga.secondo === quoteRiga.secondo && 
-                        riga.terzo === quoteRiga.terzo) {
-                        risultati.push({
-                            data: corsa.data,
-                            cavallo: riga.cavalli,
-                            quote: `${riga.primo}-${riga.secondo}-${riga.terzo}`,
-                            tris: corsa.trisVincente
-                        });
-                    }
-                });
+        const risultatiCompleti = corse.filter(corsa => {
+            return quoteAttuali.every(quoteRiga => {
+                const rigaCorsa = corsa.dati[quoteRiga.numero - 1];
+                return rigaCorsa &&
+                       rigaCorsa.primo === quoteRiga.primo &&
+                       rigaCorsa.secondo === quoteRiga.secondo &&
+                       rigaCorsa.terzo === quoteRiga.terzo;
             });
-        }
+        });
 
-        mostraRisultatiRicerca(risultati, "Risultati ricerca quote");
+        const risultatiDiv = document.getElementById('risultatiRicerca');
+        risultatiDiv.innerHTML = '';
+        risultatiDiv.style.display = 'block';
+
+        if (risultatiCompleti.length > 0) {
+            risultatiCompleti.forEach(risultato => {
+                const corsaDiv = document.createElement('div');
+                corsaDiv.style.marginBottom = '20px';
+                corsaDiv.style.borderBottom = '1px solid var(--border-color)';
+                
+                corsaDiv.innerHTML = `
+                    <p><strong>Data: ${risultato.data}</strong> | Tris: ${risultato.trisVincente}</p>
+                    <table style="width: 100%; margin-bottom: 10px;">
+                        <tr>
+                            <th>Numero</th>
+                            <th>Cavalli</th>
+                            <th>1°posto</th>
+                            <th>2°posto</th>
+                            <th>3°posto</th>
+                        </tr>
+                        ${risultato.dati.map(riga => `
+                            <tr>
+                                <td>${riga.numero}</td>
+                                <td>${riga.cavalli}</td>
+                                <td>${riga.primo}</td>
+                                <td>${riga.secondo}</td>
+                                <td>${riga.terzo}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                `;
+                risultatiDiv.appendChild(corsaDiv);
+            });
+            
+            mostraMessaggio(`✅ Trovate ${risultatiCompleti.length} tabelle corrispondenti`, 'info');
+        } else {
+            mostraMessaggio('🔍 Nessuna tabella corrispondente trovata', 'warning');
+        }
+    }
+
+    function cercaGara() {
+        const dataOdierna = new Date().toLocaleDateString('it-IT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+
+        const risultati = corse.filter(corsa => corsa.data === dataOdierna);
+
+        if (risultati.length > 0) {
+            mostraRisultatiRicerca(risultati.map(corsa => ({
+                data: corsa.data,
+                cavallo: corsa.dati.map(d => d.cavalli).join(', '),
+                quote: 'Varie',
+                tris: corsa.trisVincente
+            })), "Risultati gare di oggi");
+        } else {
+            mostraMessaggio('🔍 Nessuna gara trovata per oggi', 'warning');
+        }
+    }
+
+    function azzeraRicerca() {
+        document.getElementById('risultatiRicerca').style.display = 'none';
+        const tabellaRisultati = document.getElementById('tabellaRisultati').getElementsByTagName('tbody')[0];
+        tabellaRisultati.innerHTML = '';
+        mostraMessaggio('✅ Ricerca azzerata', 'info');
     }
 
     async function salvaDati() {
@@ -692,7 +733,6 @@
             return false;
         }
     }
-
     function mostraMessaggio(messaggio, tipo) {
         const messageBox = document.getElementById('messageBox');
         messageBox.innerHTML = `<div class="alert alert-${tipo}">${messaggio}</div>`;
