@@ -37,7 +37,7 @@
             color: var(--text-color);
             transition: all 0.3s ease;
         }
-     .header-controls {
+       .header-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -132,7 +132,8 @@
         table td:nth-child(2) {
             width: 32%;
         }
-       input, select {
+
+        input, select {
             width: 90%;
             padding: 8px;
             border: 1px solid var(--border-color);
@@ -145,7 +146,6 @@
             color: #999;
             font-style: italic;
         }
-
         .button-container {
             display: flex;
             gap: 10px;
@@ -196,6 +196,53 @@
 
         .alert-info {
             background-color: var(--alert-info);
+        }
+
+        .alert-centrale {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ff0000;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: blink 1s infinite;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .alert-centrale h2 {
+            margin: 0;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .alert-contenuto {
+            background-color: rgba(255,255,255,0.9);
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .alert-button {
+            background-color: white;
+            color: red;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
         }
 
         .sync-indicator {
@@ -334,7 +381,7 @@
             <td><input type="number" inputmode="decimal" class="secondo-input"></td>
             <td><input type="number" inputmode="decimal" class="terzo-input"></td>
         </tr>
-        <tr>
+       <tr>
             <td>4</td>
             <td><div class="cavalli-input-container">
                 <input type="text" class="cavalli-input">
@@ -399,58 +446,37 @@
             </td>
         </tr>
     </table>
-    <div class="button-container">
+      <div class="button-container">
         <button onclick="cercaGara()" class="btn-cerca">Cerca Gara</button>
         <button onclick="cercaQuote()" class="btn-cerca">Cerca Quote</button>
         <button onclick="cercaCavallo()" class="btn-cerca">Cerca Cavallo</button>
         <button onclick="azzeraRicerca()" class="btn-cerca">Azzera Ricerca</button>
         <button onclick="salvaDati()" class="btn-salva">Salva Corsa</button>
-        <button onclick="toggleLogDati()" class="btn-toggle" id="toggleLogBtn">
-            Nascondi Log
-        </button>
     </div>
 
-    <div class="log-container" id="logContainer">
-        <div class="log-controls">
-            <label>Ordina per: </label>
-            <select id="sortOrder" onchange="ordinaLog()">
-                <option value="newest">Più recenti</option>
-                <option value="oldest">Più vecchie</option>
-            </select>
+    <div id="risultatiRicerca" style="margin: 20px 0; display: none;">
+        <div style="background-color: var(--header-bg); padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <h2 style="color: var(--text-color); margin: 0 0 15px 0;">🔍 Risultati della Ricerca</h2>
+            <div id="risultatiContainer">
+                <!-- Qui verranno inseriti i risultati -->
+            </div>
         </div>
-        <h3>Log Dati</h3>
-        <div id="logDati"></div>
-    </div>
-
-    <div id="risultatiRicerca" style="margin-top: 20px; display: none;">
-        <h3>Risultati Ricerca</h3>
-        <table id="tabellaRisultati" style="width:100%; border-collapse: collapse;">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Cavallo</th>
-                    <th>Quote</th>
-                    <th>Tris Vincente</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
     </div>
 <script>
-let corse = JSON.parse(localStorage.getItem('corse')) || [];
+let corse = [];
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbytqre6y_4j-8KJkpHtAL2b5Rl3sMxhk9Qw6e_N29cLQalqkNWDD7uW2ghS0V2EjIUj/exec';
 
-// Funzione per sincronizzare con Google Sheets
 async function leggiDaGoogleSheets() {
     try {
         document.getElementById('syncIndicator').classList.add('visible');
         const response = await fetch(SHEETS_URL + '?action=read');
         const data = await response.json();
         if (data && data.corse) {
-            corse = data.corse;
-            localStorage.setItem('corse', JSON.stringify(corse));
-            aggiornaLogDati();
+            corse = data.corse.map(corsa => ({
+                ...corsa,
+                trisVincente: typeof corsa.trisVincente === 'string' ? 
+                    JSON.parse(corsa.trisVincente) : corsa.trisVincente
+            }));
         }
         document.getElementById('syncIndicator').classList.remove('visible');
     } catch (error) {
@@ -459,7 +485,6 @@ async function leggiDaGoogleSheets() {
     }
 }
 
-// Gestione tema
 const themeToggle = document.getElementById('themeToggle');
 themeToggle.checked = localStorage.getItem('theme') === 'dark';
 
@@ -470,10 +495,6 @@ function toggleTheme() {
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
-themeToggle.addEventListener('change', toggleTheme);
-toggleTheme();
-
-// Funzione Google Keep
 function apriKeep() {
     window.open('https://keep.google.com', '_blank');
     mostraMessaggio(`
@@ -486,66 +507,91 @@ function apriKeep() {
     `, 'info');
 }
 
-// Auto-compilazione al momento dell'incollaggio
-document.querySelector('.cavalli-input').addEventListener('paste', function(e) {
-    e.preventDefault();
-    
-    const text = (e.clipboardData || window.clipboardData).getData('text');
-    
-    try {
-        const pattern = /(\d)\s+([^0-9]+?)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/g;
-        let matches = [];
-        let match;
-
-        while ((match = pattern.exec(text)) !== null) {
-            const numeroRiga = parseInt(match[1]);
-            if (numeroRiga >= 1 && numeroRiga <= 6) {
-                matches[numeroRiga - 1] = {
-                    cavallo: match[2].trim(),
-                    quote: [match[3], match[4], match[5]]
-                };
-            }
-        }
-
-        matches.forEach((dati, index) => {
-            if (dati) {
-                const inputs = document.querySelectorAll(`#mainTable tr:nth-child(${index + 2}) input`);
-                if (inputs[0]) inputs[0].value = dati.cavallo;
-                if (inputs[1]) inputs[1].value = dati.quote[0];
-                if (inputs[2]) inputs[2].value = dati.quote[1];
-                if (inputs[3]) inputs[3].value = dati.quote[2];
-            }
-        });
-
-        mostraMessaggio('✅ Dati incollati con successo!', 'info');
-    } catch (error) {
-        console.error('Errore nell\'elaborazione del testo:', error);
-        mostraMessaggio('⚠️ Errore nell\'elaborazione del testo incollato', 'warning');
-    }
-});
-
-function mostraRisultatiRicerca(risultati, titolo) {
-    const tabellaRisultati = document.getElementById('tabellaRisultati').getElementsByTagName('tbody')[0];
-    tabellaRisultati.innerHTML = '';
-
-    if (risultati.length > 0) {
-        risultati.forEach(r => {
-            const row = tabellaRisultati.insertRow();
-            row.innerHTML = `
-                <td>${r.data}</td>
-                <td>${r.cavallo}</td>
-                <td>${r.quote}</td>
-                <td>${r.tris}</td>
-            `;
-        });
-        document.getElementById('risultatiRicerca').style.display = 'block';
-        mostraMessaggio(`✅ Trovati ${risultati.length} risultati. Controlla la tabella sotto.`, 'info');
-    } else {
-        document.getElementById('risultatiRicerca').style.display = 'none';
-        mostraMessaggio('🔍 Nessun risultato trovato', 'warning');
-    }
+function mostraMessaggio(messaggio, tipo) {
+    const messageBox = document.getElementById('messageBox');
+    messageBox.innerHTML = `<div class="alert alert-${tipo}">${messaggio}</div>`;
+    setTimeout(() => {
+        messageBox.innerHTML = '';
+    }, 8000);
 }
-// Nuove funzioni e funzioni modificate
+
+function mostraAlertCentrale(tipo, risultati) {
+    const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-01.mp3');
+    audio.play();
+
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert-centrale';
+    
+    let titoloMessaggio = '';
+    switch(tipo) {
+        case 'gara':
+            titoloMessaggio = '‼️ GARE TROVATE ‼️';
+            break;
+        case 'cavallo':
+            titoloMessaggio = '‼️ CAVALLO TROVATO ‼️';
+            break;
+        case 'quote':
+            titoloMessaggio = '‼️ QUOTE TROVATE ‼️';
+            break;
+    }
+
+    alertDiv.innerHTML = `
+        <h2>${titoloMessaggio}</h2>
+        <div class="alert-contenuto">
+            <p>Trovati ${risultati} risultati</p>
+            <p><strong>Controlla la tabella sotto</strong></p>
+        </div>
+        <button class="alert-button" onclick="this.parentElement.remove()">OK - HO VISTO</button>
+    `;
+
+    document.body.appendChild(alertDiv);
+}
+
+function formattaTrisVincente(tris) {
+    if (typeof tris === 'string' && tris.includes('-')) {
+        return tris;
+    }
+    if (tris && typeof tris === 'object' && 'primo' in tris && 'secondo' in tris && 'terzo' in tris) {
+        return `${tris.primo}-${tris.secondo}-${tris.terzo}`;
+    }
+    return 'N/A';
+}
+
+function cercaGara() {
+    const quoteAttuali = [];
+    const righe = document.querySelectorAll('#mainTable tr');
+
+    for (let i = 1; i < 7; i++) {
+        const inputs = righe[i].querySelectorAll('input');
+        if(inputs[0].value || inputs[1].value || inputs[2].value || inputs[3].value) {
+            quoteAttuali.push({
+                cavalli: inputs[0].value,
+                primo: inputs[1].value,
+                secondo: inputs[2].value,
+                terzo: inputs[3].value
+            });
+        }
+    }
+
+    if (quoteAttuali.length === 0) {
+        mostraMessaggio('⚠️ Inserisci almeno una serie di dati', 'warning');
+        return;
+    }
+
+    const risultati = corse.filter(corsa => {
+        return corsa.dati.some((riga, index) => {
+            const quoteRiga = quoteAttuali[index];
+            if (!quoteRiga) return false;
+            return riga.cavalli === quoteRiga.cavalli &&
+                   riga.primo === quoteRiga.primo &&
+                   riga.secondo === quoteRiga.secondo &&
+                   riga.terzo === quoteRiga.terzo;
+        });
+    });
+
+    mostraRisultatiRicerca(risultati, 'gara');
+}
+
 function cercaCavallo() {
     const inputs = document.querySelectorAll('.cavalli-input');
     let searchInput = '';
@@ -563,24 +609,12 @@ function cercaCavallo() {
         return;
     }
 
-    const risultati = [];
-    corse.forEach(corsa => {
-        const rigaCorrispondente = corsa.dati[corsiaRicerca - 1];
-        if (rigaCorrispondente && rigaCorrispondente.cavalli.toLowerCase().includes(searchInput)) {
-            risultati.push({
-                data: corsa.data,
-                cavallo: rigaCorrispondente.cavalli,
-                quote: `${rigaCorrispondente.primo}-${rigaCorrispondente.secondo}-${rigaCorrispondente.terzo}`,
-                tris: corsa.trisVincente
-            });
-        }
+    const risultati = corse.filter(corsa => {
+        const rigaCorrispondente = corsa.dati.find(riga => riga.numero == corsiaRicerca);
+        return rigaCorrispondente && rigaCorrispondente.cavalli.toLowerCase().includes(searchInput);
     });
 
-    if (risultati.length > 0) {
-        mostraRisultatiRicerca(risultati, `Risultati ricerca: ${searchInput} (Corsia ${corsiaRicerca})`);
-    } else {
-        mostraMessaggio(`🔍 Nessun risultato trovato per "${searchInput}" nella corsia ${corsiaRicerca}`, 'warning');
-    }
+    mostraRisultatiRicerca(risultati, 'cavallo');
 }
 
 function cercaQuote() {
@@ -615,18 +649,37 @@ function cercaQuote() {
         });
     });
 
-    const risultatiDiv = document.getElementById('risultatiRicerca');
-    risultatiDiv.innerHTML = '';
-    risultatiDiv.style.display = 'block';
+    mostraRisultatiRicerca(risultatiCompleti, 'quote');
+}
 
-    if (risultatiCompleti.length > 0) {
-        risultatiCompleti.forEach(risultato => {
-            const corsaDiv = document.createElement('div');
-            corsaDiv.style.marginBottom = '20px';
-            corsaDiv.style.borderBottom = '1px solid var(--border-color)';
+function mostraRisultatiRicerca(risultati, tipo) {
+    const risultatiDiv = document.getElementById('risultatiRicerca');
+    const risultatiContainer = document.getElementById('risultatiContainer');
+    
+    if (!risultatiDiv || !risultatiContainer) {
+        console.error('Elementi risultati non trovati');
+        return;
+    }
+    
+    risultatiContainer.innerHTML = '';
+    
+    if (risultati.length > 0) {
+        risultati.forEach(risultato => {
+            const resultDiv = document.createElement('div');
+            resultDiv.style.backgroundColor = 'var(--bg-color)';
+            resultDiv.style.padding = '15px';
+            resultDiv.style.marginBottom = '15px';
+            resultDiv.style.borderRadius = '5px';
+            resultDiv.style.border = '2px solid var(--button-secondary)';
             
-            corsaDiv.innerHTML = `
-                <p><strong>Data: ${risultato.data}</strong> | Tris: ${risultato.trisVincente}</p>
+            const trisVincenteDiv = `
+                <div style="background-color: #ff0000; color: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; text-align: center; font-size: 1.2em; font-weight: bold;">
+                    🎯 TRIS VINCENTE: ${formattaTrisVincente(risultato.trisVincente)} 🎯
+                </div>
+            `;
+
+            resultDiv.innerHTML = `
+                ${trisVincenteDiv}
                 <table style="width: 100%; margin-bottom: 10px;">
                     <tr>
                         <th>Numero</th>
@@ -646,44 +699,26 @@ function cercaQuote() {
                     `).join('')}
                 </table>
             `;
-            risultatiDiv.appendChild(corsaDiv);
+            risultatiContainer.appendChild(resultDiv);
         });
         
-        mostraMessaggio(`✅ Trovate ${risultatiCompleti.length} tabelle corrispondenti`, 'info');
+        risultatiDiv.style.display = 'block';
+        risultatiDiv.scrollIntoView({ behavior: 'smooth' });
+        mostraAlertCentrale(tipo, risultati.length);
     } else {
-        mostraMessaggio('🔍 Nessuna tabella corrispondente trovata', 'warning');
-    }
-}
-
-function cercaGara() {
-    const dataOdierna = new Date().toLocaleDateString('it-IT', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-
-    const risultati = corse.filter(corsa => corsa.data === dataOdierna);
-
-    if (risultati.length > 0) {
-        mostraRisultatiRicerca(risultati.map(corsa => ({
-            data: corsa.data,
-            cavallo: corsa.dati.map(d => d.cavalli).join(', '),
-            quote: 'Varie',
-            tris: corsa.trisVincente
-        })), "Risultati gare di oggi");
-    } else {
-        mostraMessaggio('🔍 Nessuna gara trovata per oggi', 'warning');
+        risultatiDiv.style.display = 'none';
+        mostraAlertCentrale(tipo, 0);
     }
 }
 
 function azzeraRicerca() {
-    document.getElementById('risultatiRicerca').style.display = 'none';
-    const tabellaRisultati = document.getElementById('tabellaRisultati').getElementsByTagName('tbody')[0];
-    tabellaRisultati.innerHTML = '';
+    const risultatiDiv = document.getElementById('risultatiRicerca');
+    const risultatiContainer = document.getElementById('risultatiContainer');
+    risultatiContainer.innerHTML = '';
+    risultatiDiv.style.display = 'none';
     mostraMessaggio('✅ Ricerca azzerata', 'info');
 }
 
-// Funzioni originali
 async function salvaDati() {
     const primo = document.getElementById('primoTris').value;
     const secondo = document.getElementById('secondoTris').value;
@@ -694,16 +729,15 @@ async function salvaDati() {
         return;
     }
 
-    const data = new Date().toLocaleDateString('it-IT', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
+    const trisVincente = {
+        primo: primo,
+        secondo: secondo,
+        terzo: terzo
+    };
     
     const corsa = {
         id: Date.now(),
-        data: data,
-        trisVincente: `${primo}-${secondo}-${terzo}`,
+        trisVincente: trisVincente,
         dati: []
     };
 
@@ -730,8 +764,6 @@ async function salvaDati() {
     try {
         const salvataggioOk = await salvaInGoogleSheets(corsa);
         if (salvataggioOk) {
-            corse.push(corsa);
-            localStorage.setItem('corse', JSON.stringify(corse));
             await leggiDaGoogleSheets();
             pulisciForm();
             mostraMessaggio('✅ Corsa salvata con successo!', 'info');
@@ -752,7 +784,10 @@ async function salvaInGoogleSheets(corsa) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(corsa)
+            body: JSON.stringify({
+                ...corsa,
+                trisVincente: JSON.stringify(corsa.trisVincente)
+            })
         });
 
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -760,58 +795,6 @@ async function salvaInGoogleSheets(corsa) {
     } catch (error) {
         console.error('Errore nel salvataggio:', error);
         return false;
-    }
-}
-
-function mostraMessaggio(messaggio, tipo) {
-    const messageBox = document.getElementById('messageBox');
-    messageBox.innerHTML = `<div class="alert alert-${tipo}">${messaggio}</div>`;
-    setTimeout(() => {
-        messageBox.innerHTML = '';
-    }, 8000);
-}
-
-function aggiornaLogDati(corseDaMostrare = corse) {
-    const logDiv = document.getElementById('logDati');
-    logDiv.innerHTML = '';
-    
-    corseDaMostrare.forEach(corsa => {
-        const corsaDiv = document.createElement('div');
-        corsaDiv.style.marginBottom = '20px';
-        corsaDiv.style.borderBottom = '1px solid var(--border-color)';
-        
-        corsaDiv.innerHTML = `
-            <p><strong>Data: ${corsa.data}</strong> | Tris: ${corsa.trisVincente}</p>
-            <table style="width: 100%; margin-bottom: 10px;">
-                <tr>
-                    <th>Numero</th>
-                    <th>Cavalli</th>
-                    <th>1°posto</th>
-                    <th>2°posto</th>
-                    <th>3°posto</th>
-                </tr>
-                ${corsa.dati.map(riga => `
-                    <tr>
-                        <td>${riga.numero}</td>
-                        <td>${riga.cavalli}</td>
-                        <td>${riga.primo}</td>
-                        <td>${riga.secondo}</td>
-                        <td>${riga.terzo}</td>
-                    </tr>
-                `).join('')}
-            </table>
-            <button onclick="eliminaCorsa(${corsa.id})" class="btn-cerca">Elimina</button>
-        `;
-        logDiv.appendChild(corsaDiv);
-    });
-}
-
-function eliminaCorsa(id) {
-    if (confirm('Sei sicuro di voler eliminare questa corsa?')) {
-        corse = corse.filter(corsa => corsa.id !== id);
-        localStorage.setItem('corse', JSON.stringify(corse));
-        aggiornaLogDati();
-        mostraMessaggio('✅ Corsa eliminata con successo', 'info');
     }
 }
 
@@ -823,30 +806,52 @@ function pulisciForm() {
     document.getElementById('terzoTris').value = '';
 }
 
-function toggleLogDati() {
-    const logContainer = document.getElementById('logContainer');
-    const toggleBtn = document.getElementById('toggleLogBtn');
-    const isVisible = !logContainer.classList.contains('hidden');
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    themeToggle.addEventListener('change', toggleTheme);
+    toggleTheme();
     
-    logContainer.classList.toggle('hidden');
-    toggleBtn.textContent = isVisible ? 'Mostra Log' : 'Nascondi Log';
-}
+    // Auto-compilazione al momento dell'incollaggio
+    document.querySelector('.cavalli-input').addEventListener('paste', function(e) {
+        e.preventDefault();
+        
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        
+        try {
+            const pattern = /(\d)\s+([^0-9]+?)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/g;
+            let matches = [];
+            let match;
 
-function ordinaLog() {
-    const sortOrder = document.getElementById('sortOrder').value;
-    const corsaOrdinate = [...corse].sort((a, b) => {
-        const dateA = new Date(a.data.split('/').reverse().join('-'));
-        const dateB = new Date(b.data.split('/').reverse().join('-'));
-        return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+            while ((match = pattern.exec(text)) !== null) {
+                const numeroRiga = parseInt(match[1]);
+                if (numeroRiga >= 1 && numeroRiga <= 6) {
+                    matches[numeroRiga - 1] = {
+                        cavallo: match[2].trim(),
+                        quote: [match[3], match[4], match[5]]
+                    };
+                }
+            }
+
+            matches.forEach((dati, index) => {
+                if (dati) {
+                    const inputs = document.querySelectorAll(`#mainTable tr:nth-child(${index + 2}) input`);
+                    if (inputs[0]) inputs[0].value = dati.cavallo;
+                    if (inputs[1]) inputs[1].value = dati.quote[0];
+                    if (inputs[2]) inputs[2].value = dati.quote[1];
+                    if (inputs[3]) inputs[3].value = dati.quote[2];
+                }
+            });
+            mostraMessaggio('✅ Dati incollati con successo!', 'info');
+        } catch (error) {
+            console.error('Errore nell\'elaborazione del testo:', error);
+            mostraMessaggio('⚠️ Errore nell\'elaborazione del testo incollato', 'warning');
+        }
     });
-    
-    aggiornaLogDati(corsaOrdinate);
-}
+});
 
+// Inizializzazione all'avvio
 window.onload = async function() {
-    document.querySelectorAll('.cavalli-input').forEach(input => {
-        setupAutoComplete(input);
-    });
+    console.log('Pagina caricata');
     await leggiDaGoogleSheets();
     toggleTheme();
     setInterval(leggiDaGoogleSheets, 60000);
