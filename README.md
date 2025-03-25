@@ -563,25 +563,22 @@ function cercaGara() {
 
     for (let i = 1; i < 7; i++) {
         const inputs = righe[i].querySelectorAll('input');
-        if(inputs[0].value || inputs[1].value || inputs[2].value || inputs[3].value) {
-            quoteAttuali.push({
-                cavalli: inputs[0].value,
-                primo: inputs[1].value,
-                secondo: inputs[2].value,
-                terzo: inputs[3].value
-            });
-        }
+        quoteAttuali.push({
+            cavalli: inputs[0].value,
+            primo: inputs[1].value,
+            secondo: inputs[2].value,
+            terzo: inputs[3].value
+        });
     }
 
-    if (quoteAttuali.length === 0) {
+    if (quoteAttuali.every(riga => !riga.cavalli)) {
         mostraMessaggio('⚠️ Inserisci almeno una serie di dati', 'warning');
         return;
     }
 
     const risultati = corse.filter(corsa => {
-        return corsa.dati.some((riga, index) => {
+        return corsa.dati.every((riga, index) => {
             const quoteRiga = quoteAttuali[index];
-            if (!quoteRiga) return false;
             return riga.cavalli === quoteRiga.cavalli &&
                    riga.primo === quoteRiga.primo &&
                    riga.secondo === quoteRiga.secondo &&
@@ -594,27 +591,54 @@ function cercaGara() {
 
 function cercaCavallo() {
     const inputs = document.querySelectorAll('.cavalli-input');
-    let searchInput = '';
-    let corsiaRicerca = 0;
+    const cavalliInseriti = Array.from(inputs)
+        .filter(input => input.value.trim())
+        .map(input => input.value.trim());
 
-    inputs.forEach((input, index) => {
-        if (input.value.trim()) {
-            searchInput = input.value.trim().toLowerCase();
-            corsiaRicerca = index + 1;
-        }
-    });
-
-    if (!searchInput) {
-        mostraMessaggio('⚠️ Inserisci il nome di un cavallo da cercare', 'warning');
+    // Se non ci sono cavalli inseriti
+    if (cavalliInseriti.length === 0) {
+        mostraMessaggio('⚠️ Inserisci almeno un cavallo da cercare', 'warning');
         return;
     }
 
-    const risultati = corse.filter(corsa => {
-        const rigaCorrispondente = corsa.dati.find(riga => riga.numero == corsiaRicerca);
-        return rigaCorrispondente && rigaCorrispondente.cavalli.toLowerCase().includes(searchInput);
-    });
+    // Se c'è più di un cavallo inserito, chiedi quale cercare
+    if (cavalliInseriti.length > 1) {
+        const cavalloDaCercare = prompt(
+            'Sono stati inseriti più cavalli. Quale vuoi cercare?\n\n' +
+            cavalliInseriti.map((cavallo, index) => `${index + 1}: ${cavallo}`).join('\n')
+        );
 
-    mostraRisultatiRicerca(risultati, 'cavallo');
+        if (!cavalloDaCercare) {
+            mostraMessaggio('⚠️ Nessun cavallo selezionato per la ricerca', 'warning');
+            return;
+        }
+
+        const searchInput = cavalloDaCercare.trim().toLowerCase();
+        const risultati = corse.filter(corsa => {
+            return corsa.dati.some(riga => 
+                riga.cavalli.toLowerCase().includes(searchInput)
+            );
+        });
+
+        mostraRisultatiRicerca(risultati, 'cavallo');
+    } else {
+        // Se c'è un solo cavallo, cerca quello
+        const searchInput = cavalliInseriti[0].toLowerCase();
+        let corsiaRicerca = 0;
+
+        inputs.forEach((input, index) => {
+            if (input.value.trim().toLowerCase() === searchInput) {
+                corsiaRicerca = index + 1;
+            }
+        });
+
+        const risultati = corse.filter(corsa => {
+            const rigaCorrispondente = corsa.dati.find(riga => riga.numero == corsiaRicerca);
+            return rigaCorrispondente && rigaCorrispondente.cavalli.toLowerCase().includes(searchInput);
+        });
+
+        mostraRisultatiRicerca(risultati, 'cavallo');
+    }
 }
 
 function cercaQuote() {
