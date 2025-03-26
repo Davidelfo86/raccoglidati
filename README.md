@@ -265,12 +265,15 @@
             </td>
             <td><input type="number" inputmode="decimal" class="quota-input"></td>
             <td>
-                <select class="tris-select">
-                    <option value="">-</option>
-                    <option value="1">1°</option>
-                    <option value="2">2°</option>
-                    <option value="3">3°</option>
-                </select>
+<select class="tris-select">
+    <option value="">-</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+</select>
             </td>
         </tr>
         <!-- Riga 2: solo cavallo e quota -->
@@ -295,10 +298,14 @@
             <td><input type="number" inputmode="decimal" class="quota-input"></td>
             <td>
                 <select class="tris-select">
-                    <option value="">-</option>
-                    <option value="1">1°</option>
-                    <option value="2">2°</option>
-                    <option value="3">3°</option>
+    <option value="">-</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+</select>
                 </select>
             </td>
         </tr>
@@ -324,10 +331,14 @@
             <td><input type="number" inputmode="decimal" class="quota-input"></td>
             <td>
                 <select class="tris-select">
-                    <option value="">-</option>
-                    <option value="1">1°</option>
-                    <option value="2">2°</option>
-                    <option value="3">3°</option>
+    <option value="">-</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+</select>
                 </select>
             </td>
         </tr>
@@ -460,40 +471,31 @@ function azzeraRicerca() {
 }
 function cercaGara() {
     const righe = document.querySelectorAll('#mainTable tr');
-    const datiAttualiali = [];
-    const quotaTrisAttuale = document.querySelector('.quota-tris').value;
+    const datiAttuali = [];
 
     // Raccoglie i dati dalla tabella
     for (let i = 1; i < 7; i++) {
         const riga = righe[i];
         const cavallo = riga.querySelector('.cavalli-input').value;
         const quota = riga.querySelector('.quota-input').value;
-        const trisSelect = riga.querySelector('.tris-select');
         
-        datiAttuali.push({
-            numero: i,
-            cavallo: cavallo,
-            quota: quota,
-            tris: trisSelect ? trisSelect.value : ''
-        });
-    }
+        if (!cavallo || !quota) {
+            mostraMessaggio('⚠️ Per cercare una gara devi inserire tutti i cavalli e tutte le quote!', 'warning');
+            return;
+        }
 
-    if (datiAttuali.every(riga => !riga.cavallo)) {
-        mostraMessaggio('⚠️ Inserisci almeno un cavallo', 'warning');
-        return;
+        datiAttuali.push({
+            cavallo: cavallo,
+            quota: quota
+        });
     }
 
     const risultati = corse.filter(corsa => {
-        const datiMatch = corsa.dati.every((rigaCorsa, index) => {
+        return corsa.dati.every((rigaCorsa, index) => {
             const rigaAttuale = datiAttuali[index];
-            return (!rigaAttuale.cavallo || rigaCorsa.cavallo === rigaAttuale.cavallo) &&
-                   (!rigaAttuale.quota || rigaCorsa.quota === rigaAttuale.quota) &&
-                   (!rigaAttuale.tris || rigaCorsa.tris === rigaAttuale.tris);
+            return rigaCorsa.cavallo === rigaAttuale.cavallo &&
+                   rigaCorsa.quota === rigaAttuale.quota;
         });
-
-        const quotaTrisMatch = !quotaTrisAttuale || corsa.quotaTris === quotaTrisAttuale;
-
-        return datiMatch && quotaTrisMatch;
     });
 
     mostraRisultatiRicerca(risultati, 'gara');
@@ -501,37 +503,25 @@ function cercaGara() {
 
 function cercaCavallo() {
     const inputs = document.querySelectorAll('.cavalli-input');
-    const cavalliInseriti = Array.from(inputs)
-        .filter(input => input.value.trim())
-        .map(input => input.value.trim());
+    let corsiaRicerca = 0;
+    let cavalloDaCercare = '';
 
-    if (cavalliInseriti.length === 0) {
-        mostraMessaggio('⚠️ Inserisci almeno un cavallo da cercare', 'warning');
+    inputs.forEach((input, index) => {
+        if (input.value.trim()) {
+            corsiaRicerca = index + 1;
+            cavalloDaCercare = input.value.trim();
+        }
+    });
+
+    if (!cavalloDaCercare) {
+        mostraMessaggio('⚠️ Inserisci un cavallo da cercare', 'warning');
         return;
     }
 
-    let cavalloDaCercare;
-    if (cavalliInseriti.length > 1) {
-        const cavalli = cavalliInseriti.map((cavallo, index) => 
-            `${index + 1}: ${cavallo}`
-        ).join('\n');
-        
-        cavalloDaCercare = prompt(
-            `Quale cavallo vuoi cercare?\n\n${cavalli}`
-        );
-
-        if (!cavalloDaCercare) {
-            mostraMessaggio('⚠️ Nessun cavallo selezionato', 'warning');
-            return;
-        }
-    } else {
-        cavalloDaCercare = cavalliInseriti[0];
-    }
-
     const risultati = corse.filter(corsa => {
-        return corsa.dati.some(riga => 
-            riga.cavallo.toLowerCase().includes(cavalloDaCercare.toLowerCase())
-        );
+        const rigaCorrispondente = corsa.dati[corsiaRicerca - 1];
+        return rigaCorrispondente && 
+               rigaCorrispondente.cavallo.toLowerCase().includes(cavalloDaCercare.toLowerCase());
     });
 
     mostraRisultatiRicerca(risultati, 'cavallo');
@@ -540,7 +530,6 @@ function cercaCavallo() {
 function cercaQuote() {
     const righe = document.querySelectorAll('#mainTable tr');
     const quoteAttuali = [];
-    const quotaTrisAttuale = document.querySelector('.quota-tris').value;
 
     for (let i = 1; i < 7; i++) {
         const quota = righe[i].querySelector('.quota-input').value;
@@ -552,20 +541,16 @@ function cercaQuote() {
         }
     }
 
-    if (quoteAttuali.length === 0 && !quotaTrisAttuale) {
+    if (quoteAttuali.length === 0) {
         mostraMessaggio('⚠️ Inserisci almeno una quota da cercare', 'warning');
         return;
     }
 
     const risultati = corse.filter(corsa => {
-        const quoteMatch = quoteAttuali.every(quotaRiga => {
+        return quoteAttuali.every(quotaRiga => {
             const rigaCorsa = corsa.dati[quotaRiga.numero - 1];
             return rigaCorsa && rigaCorsa.quota === quotaRiga.quota;
         });
-
-        const trisMatch = !quotaTrisAttuale || corsa.quotaTris === quotaTrisAttuale;
-
-        return quoteMatch && trisMatch;
     });
 
     mostraRisultatiRicerca(risultati, 'quote');
@@ -619,6 +604,7 @@ function mostraRisultatiRicerca(risultati, tipo) {
         risultatiDiv.style.display = 'none';
         mostraAlertCentrale(tipo, 0);
     }
+}
 }
 async function salvaDati() {
     const righe = document.querySelectorAll('#mainTable tr');
