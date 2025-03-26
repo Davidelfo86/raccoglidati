@@ -253,93 +253,129 @@
     <div id="messageBox"></div>
     <div id="syncIndicator" class="sync-indicator">🔄 Sincronizzazione...</div>
 <table id="mainTable">
-        <tr>
-            <th></th>
-            <th>Cavalli</th>
-            <th>Quote</th>
-            <th>Tris</th>
-        </tr>
-        <!-- Riga 1 -->
-        <tr>
-            <td>1</td>
-            <td>
-                <div class="cavalli-input-container">
-                    <input type="text" class="cavallilli-input" placeholder="Inserisci il cavallo...">
-                </div>
-            </td>
-            <td><input type="numnumber" inputmode="decimal" class="quota-input" step="0.01"></td>
-            <td>
-                <select class="tris-select">
-                    <option value="">-</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                </select>
-            </td>
-        </tr>
-        <  <!-- Righe 2-6 con stessa struttura -->
-        <tr>
-            <td>2</td>
-            <td><div class="cavalli-input-container"><input type="text" class="cavalli-input"></div></td>
-            <td><input type="number" inputmode=de="decimal" class="quota-input" step="0.01"></td>
-            <td><select class="tris-select">
-                <option on value="">-</option>
-                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select></td>
-        </tr>
-        <tr>
-            <td>3</td>
-            <td><div class="cavalli-input-container"><input type="text" class="cavalli-input"></div></td>
-            <td><input type="number" inputmode="decimal" class="quota-input" step="0.01"></td>
-            <td><select class="tris-select">
+    <tr>
+        <th></th>
+        <th>Cavalli</th>
+        <th>Quote</th>
+        <th>Tris</th>
+    </tr>
+    <!-- Riga 1: con tris (primo posto) -->
+    <tr>
+        <td>1</td>
+        <td>
+            <div class="cavalli-input-container">
+                <input type="text" class="cavalli-input" placeholder="Inserisci il cavallo...">
+            </div>
+        </td>
+        <td>
+            <input type="number" inputmode="decimal" class="quota-input" step="0.01">
+        </td>
+        <td>
+            <select class="tris-select">
                 <option value="">-</option>
-                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select></td>
-        </tr>
-        <tr>
-            <td>4</td>
-            <td><div class="cavalli-input-container"><input type="text" class="cavalli-input"></div></td>
-            <td><input type="number" inputmode="decimal" class="quota-input" step="0.01"></td>
-            <td><select class="tris-select">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+            </select>
+        </td>
+    </tr>
+    <!-- Riga 2: senza tris -->
+    <tr>
+        <td>2</td>
+        <td>
+            <div class="cavalli-input-container">
+                <input type="text" class="cavalli-input">
+            </div>
+        </td>
+        <td>
+            <input type="number" inputmode="decimal" class="quota-input" step="0.01">
+        </td>
+        <td></td>
+    </tr>
+    <!-- Riga 3: con tris (secondo posto) -->
+    <tr>
+        <td>3</td>
+        <td>
+            <div class="cavalli-input-container">
+                <input type="text" class="cavalli-input">
+            </div>
+        </td>
+        <td>
+            <input type="number" inputmode="decimal" class="quota-input" step="0.01">
+        </td>
+        <td>
+            <select class="tris-select">
                 <option value="">-</option>
-                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select></td>
-        </tr>
-        <tr>
-            <td>5</td>
-            <td><div class="cavalli-input-container"><input type="text" class="cavalli-input"></div></td>
-            <td><input type="number" inputmode="decimal" class="quota-input" step="0.01"></td>
-            <td><select class="tris-select">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+            </select>
+        </td>
+    </tr>
+    <!-- Riga 4: senza tris -->
+    <tr>
+        <td>4</td>
+        <td>
+            <div class="cavalli-input-container">
+                <input type="text" class="cavalli-input">
+            </div>
+        </td>
+        <td>
+            <input type="number" inputmode="decimal" class="quota-input" step="0.01">
+        </td>
+        <td></td>
+    </tr>
+    <!-- Riga 5: con tris (terzo posto) -->
+    <tr>
+        <td>5</td>
+        <td>
+            <div class="cavalli-input-container">
+                <input type="text" class="cavalli-input">
+            </div>
+        </td>
+        <td>
+            <input type="number" inputmode="decimal" class="quota-input" step="0.01">
+        </td>
+        <td>
+            <select class="tris-select">
                 <option value="">-</option>
-                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select></td>
-        </tr>
-        <tr>
-            <td>6</td>
-            <td><div class="cavalli-input-container"><input type="text" class="cavalli-input"></div></td>
-            <td><input type="number" inputmode="decimal" class="quota-input" step="0.01"></td>
-            <td><select class="tris-select">
-                <option value="">-</option>
-                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select></td>
-        </tr>
-        <!-- Riga Quota Tris -->
-        <tr>
-            <td></td>
-            <td>Quota Tris</td>
-            <td colspan="2">
-                <input type="number" inputmode="decimal" class="quota-tris" step="0.01" style="width: 95%">
-            </td>
-        </tr>
-    </table>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+            </select>
+        </td>
+    </tr>
+    <!-- Riga 6: senza tris -->
+    <tr>
+        <td>6</td>
+        <td>
+            <div class="cavalli-input-container">
+                <input type="text" class="cavalli-input">
+            </div>
+        </td>
+        <td>
+            <input type="number" inputmode="decimal" class="quota-input" step="0.01">
+        </td>
+        <td></td>
+    </tr>
+    <!-- Riga Quota Tris -->
+    <tr>
+        <td></td>
+        <td>Quota Tris</td>
+        <td colspan="2">
+            <input type="number" inputmode="decimal" class="quota-tris" step="0.01" style="width: 95%">
+        </td>
+    </tr>
+</table>
 
     <div class="button-container">
         <button onclick="cercaGara()" class="btn-cerca">Cerca Gara</button>
@@ -382,15 +418,6 @@ async function leggiDaGoogleSheets() {
     }
 }
 
-const themeToggle = document.getElementById('themeToggle');
-themeToggle.checked = localStorage.getItem('theme') === 'dark';
-
-function toggleTheme() {
-    const html = document.documentElement;
-    const isDark = themeToggle.checked;
-    html.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-}
 function mostraMessaggio(messaggio, tipo) {
     const messageBox = document.getElementById('messageBox');
     messageBox.innerHTML = `<div class="alert alert-${tipo}">${messaggio}</div>`;
@@ -443,7 +470,7 @@ function pulisciForm() {
 }
 
 function azzeraRicerca() {
-    const risultatiDtiDiv = document.getElementById('risultatiRicerca');
+    const risultatiDiv = document.getElementById('risultatiRicerca');
     const risultatiContainer = document.getElementById('risultatiContainer');
     risultatiContainer.innerHTML = '';
     risultatiDiv.style.display = 'none';
@@ -454,14 +481,14 @@ function cercaGara() {
     const cavalliAttuali = [];
     const quoteAttuali = [];
 
-    // Raccoglie i dati della tabella
+    // Raccoglie i dati dalla tabella
     for (let i = 1; i <= 6; i++) {
         const riga = righe[i];
         const cavallo = riga.querySelector('.cavalli-input').value.trim();
         const quota = riga.querySelector('.quota-input').value.trim();
         
         if (!cavallo || !quota) {
-            mostraMessaggio('⚠️ Per cercare una gara devi inserire tutti i cavalli e tutte le quote!', 'warning');
+            mostraMessaggio('⚠️ Per cercare una gara devi inserire tutti i cavalli e tutte le quotuote!', 'warning');
             return;
         }
 
@@ -485,6 +512,7 @@ function cercaCavallo() {
 
     // Trova il primo cavallo inserito
     for (let i = 1; i <= 6; i++) {
+  
         const cavallo = righe[i].querySelector('.cavalli-input').value.trim();
         const quota = righe[i].querySelector('.quota-input').value.trim();
         if (cavallo) {
@@ -587,19 +615,26 @@ async function salvaDati() {
     const quotaTris = document.querySelector('.quota-tris').value.trim();
     const cavalli = [];
     const quote = [];
-    let trisVincente = [];
+    const trisSelects = [1, 3, 5].map(index => righe[index].querySelector('.tris-select'));
+    const trisValues = trisSelects.map(select => select.value);
 
+    // Verifica la quota tris
     if (!quotaTris) {
-        mostraMessaggio('⚠️ Inserisci la quota tris!', 'warning');
+        mostraMesMessaggio('⚠️ Inserisci la quota tris!', 'warning');
         return;
     }
 
-    // Raccoglie i dati dalla tabella
+    // Verifica che tutti i posti della tris siano selezionati
+    if (trisValues.some(value => !value)) {
+        mostraMessaggio('⚠️ Seleziona tutti i posti della tris!', 'warning');
+        return;
+    }
+
+    // Raccoglie i dati dei cavalli e quote
     for (let i = 1; i <= 6; i++) {
         const riga = righe[i];
         const cavallo = riga.querySelector('.cavalli-input').value.trim();
         const quota = riga.querySelector('.quota-input').value.trim();
-        const trisSelect = riga.querySelector('.tris-select');
         
         if (!cavallo || !quota) {
             mostraMessaggio('⚠️ Inserisci tutti i cavalli e le quote!', 'warning');
@@ -608,23 +643,10 @@ async function salvaDati() {
 
         cavalli.push(cavallo);
         quote.push(quota);
-
-        if (trisSelect && trisSelect.value) {
-            trisVincente.push({
-                posizione: parseInt(trisSelect.value),
-                numero: i
-            });
-        }
     }
 
-    if (trisVincente.length !== 3) {
-        mostraMessaggio('⚠️ Seleziona tutti i posti della tris!', 'warning');
-        return;
-    }
-
-    // Ordina la tris per posizione
-    trisVincente.sort((a, b) => a.posizione - b.posizione);
-    const trisString = trisVincente.map(t => t.numero).join('-');
+    // Costruisce la stringa della tris vincente
+    const trisString = trisValues.join('-');
 
     const corsa = {
         data: new Date().toISOString(),
@@ -669,6 +691,16 @@ async function salvaInGoogleSheets(corsa) {
         return false;
     }
 }
+// Theme Toggle
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.checked = localStorage.getItem('theme') === 'dark';
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = themeToggle.checked;
+    html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
@@ -687,6 +719,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
             }
+        });
+    });
+
+    // Gestione input numerici
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.value < 0) this.value = 0;
         });
     });
 });
