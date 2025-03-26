@@ -404,11 +404,9 @@ async function leggiDaGoogleSheets() {
         const data = await response.json();
         if (data && data.corse) {
             corse = data.corse.map(corsa => ({
-                data: corsa.data,
-                trisVincente: corsa.trisVincente,
-                cavalli: corsa.cavalli,
-                quote: corsa.quote,
-                quotaTris: corsa.quotaTris
+                ...corsa,
+                trisVincente: typeof corsa.trisVincente === 'string' ? 
+                    JSON.parse(corsa.trisVincente) : corsa.trisVincente
             }));
         }
         document.getElementById('syncIndicator').classList.remove('visible');
@@ -416,6 +414,16 @@ async function leggiDaGoogleSheets() {
         console.error('Errore nella sincronizzazione:', error);
         document.getElementById('syncIndicator').classList.remove('visible');
     }
+}
+
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.checked = localStorage.getItem('theme') === 'dark';
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = themeToggle.checked;
+    html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
 function mostraMessaggio(messaggio, tipo) {
@@ -458,79 +466,64 @@ function mostraAlertCentrale(tipo, risultati) {
     document.body.appendChild(alertDiv);
 }
 
-function pulisciForm() {
-    const inputs = document.querySelectorAll('#mainTable input, #mainTable select');
-    inputs.forEach(input => {
-        if (input.tagName === 'SELECT') {
-            input.selectedIndex = 0;
-        } else {
-            input.value = '';
-        }
-    });
+function formattaTrisVincente(tris) {
+    if (typeof tris === 'string' && tris.includes('-')) {
+        return tris;
+    }
+    if (tris && typeof tris === 'object' && 'primo' in tris && 'secondo' in tris && 'terzo' in tris) {
+        return `${tris.primo}-${tris.secondo}-${tris.terzo}`;
+    }
+    return 'N/A';
 }
 
-function azzeraRicerca() {
-    const risultatiDiv = document.getElementById('risultatiRicerca');
-    const risultatiContainer = document.getElementById('risultatiContainer');
-    risultatiContainer.innerHTML = '';
-    risultatiDiv.style.display = 'none';
-    mostraMessaggio('✅ Ricerca azzerata', 'info');
-}
 function cercaGara() {
-    const righe = document.querySelectorAll('#mainTable tr');
-    const cavalliAttuali = [];
     const quoteAttuali = [];
+    const righe = document.querySelectorAll('#mainTable tr');
 
-    // Raccoglie i dati dalla tabella
-    for (let i = 1; i <= 6; i++) {
-        const riga = righe[i];
-        const cavallo = riga.querySelector('.cavalli-input').value.trim();
-        const quota = riga.querySelector('.quota-input').value.trim();
-        
+    // Raccoglie tutti i dati inseriti
+    for (let i = 1; i < 7; i++) {
+        const cavallo = righe[i].querySelector('.cavalli-input').value;
+        const quota = righe[i].querySelector('.quota-input').value;
+
         if (!cavallo || !quota) {
-            mostraMessaggio('⚠️ Per cercare una gara devi inserire tutti i cavalli e tutte le quotuote!', 'warning');
+            mostraMessaggio('⚠️ Per cercare una gara devi inserire tutti i cavalli e tutte le quote!', 'warning');
             return;
         }
 
-        cavalliAttuali.push(cavallo);
-        quoteAttuali.push(quota);
+        quoteAttuali.push({
+            cavalli: cavallo,
+            quota: quota
+        });
     }
 
     const risultati = corse.filter(corsa => {
-        return corsa.cavalli.every((cavallo, index) => cavallo === cavalliAttuali[index]) &&
-               corsa.quote.every((quota, index) => quota === quoteAttuali[index]);
+        return corsa.dati.every((riga, index) => {
+            const quoteRiga = quoteAttuali[index];
+            return riga.cavalli === quoteRiga.cavalli &&
+                   riga.quota === quoteRiga.quota;
+        });
     });
 
     mostraRisultatiRicerca(risultati, 'gara');
 }
 
 function cercaCavallo() {
-    const righe = document.querySelectorAll('#mainTable tr');
-    let corsiaRicerca = 0;
-    let cavalloDaCercare = '';
-    let quotaDaCercare = '';
-
-    // Trova il primo cavallo inserito
-    for (let i = 1; i <= 6; i++) {
-  
-        const cavallo = righe[i].querySelector('.cavalli-input').value.trim();
-        const quota = righe[i].querySelector('.quota-input').value.trim();
-        if (cavallo) {
-            corsiaRicerca = i - 1; // Indice base 0
-            cavalloDaCercare = cavallo;
-            quotaDaCercare = quota;
-            break;
-        }
-    }
-
-    if (!cavalloDaCercare) {
-        mostraMessaggio('⚠️ Inserisci un cavallo da cercare', 'warning');
+    const corsia = prompt('Inserisci il numero della corsia (1-6):');
+    if (!corsia || !['1','2','3','4','5','6'].includes(corsia)) {
+        mostraMessaggio('⚠️ Inserisci un numero di corsia valido (1-6)', 'warning');
         return;
     }
 
+    const cavalloDaCercare = prompt('Inserisci il nome del cavallo da cercare:');
+    if (!cavalloDaCercare) {
+        mostraMessaggio('⚠️ Inserisci il nome del cavallo', 'warning');
+        return;
+    }
+
+    const corsiaIndex = parseInt(corsia) - 1;
     const risultati = corse.filter(corsa => {
-        return corsa.cavalli[corsiaRicerca]?.toLowerCase() === cavalloDaCercare.toLowerCase() &&
-               (!quotaDaCercare || corsa.quote[corsiaRicerca] === quotaDaCercare);
+        const rigaCorsa = corsa.dati[corsiaIndex];
+        return rigaCorsa && rigaCorsa.cavalli.toLowerCase().includes(cavalloDaCercare.toLowerCase());
     });
 
     mostraRisultatiRicerca(risultati, 'cavallo');
@@ -540,12 +533,11 @@ function cercaQuote() {
     const righe = document.querySelectorAll('#mainTable tr');
     const quoteAttuali = [];
 
-    // Raccoglie le quote inserite
-    for (let i = 1; i <= 6; i++) {
-        const quota = righe[i].querySelector('.quota-input').value.trim();
+    for (let i = 1; i < 7; i++) {
+        const quota = righe[i].querySelector('.quota-input').value;
         if (quota) {
             quoteAttuali.push({
-                indice: i - 1,
+                numero: i,
                 quota: quota
             });
         }
@@ -557,15 +549,22 @@ function cercaQuote() {
     }
 
     const risultati = corse.filter(corsa => {
-        return quoteAttuali.every(q => corsa.quote[q.indice] === q.quota);
+        return quoteAttuali.every(quotaRiga => {
+            const rigaCorsa = corsa.dati[quotaRiga.numero - 1];
+            return rigaCorsa && rigaCorsa.quota === quotaRiga.quota;
+        });
     });
 
     mostraRisultatiRicerca(risultati, 'quote');
 }
-
 function mostraRisultatiRicerca(risultati, tipo) {
     const risultatiDiv = document.getElementById('risultatiRicerca');
     const risultatiContainer = document.getElementById('risultatiContainer');
+    
+    if (!risultatiDiv || !risultatiContainer) {
+        console.error('Elementi risultati non trovati');
+        return;
+    }
     
     risultatiContainer.innerHTML = '';
     
@@ -573,28 +572,34 @@ function mostraRisultatiRicerca(risultati, tipo) {
         risultati.forEach(risultato => {
             const resultDiv = document.createElement('div');
             resultDiv.style.backgroundColor = 'var(--bg-color)';
-            resultDiv.style.padding = '15px';
+               resultDiv.style.padding = '15px';
             resultDiv.style.marginBottom = '15px';
             resultDiv.style.borderRadius = '5px';
             resultDiv.style.border = '2px solid var(--button-secondary)';
             
-            resultDiv.innerHTML = `
+            const trisVincenteDiv = `
                 <div style="background-color: #ff0000; color: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; text-align: center; font-size: 1.2em; font-weight: bold;">
-                    📅 Data: ${new Date(risultato.data).toLocaleDateString()}<br>
-                    🎯 TRIS VINCENTE: ${risultato.trisVincente}<br>
-                    💰 QUOTA TRIS: ${risultato.quotaTris}
+                    🎯 TRIS VINCENTE: ${formattaTrisVincente(risultato.trisVincente)} 🎯
+                    <br>
+                    💰 QUOTA TRIS: ${risultato.quotaTris || 'N/A'}
                 </div>
+            `;
+
+            resultDiv.innerHTML = `
+                ${trisVincenteDiv}
                 <table style="width: 100%; margin-bottom: 10px;">
                     <tr>
                         <th>Numero</th>
-                        <th>Cavallo</th>
-                        <th>Quota</th>
+                        <th>Cavalli</th>
+                        <th>Quote</th>
+                        <th>Tris</th>
                     </tr>
-                    ${risultato.cavalli.map((cavallo, index) => `
+                    ${risultato.dati.map(riga => `
                         <tr>
-                            <td>${index + 1}</td>
-                            <td>${cavallo}</td>
-                            <td>${risultato.quote[index]}</td>
+                            <td>${riga.numero}</td>
+                            <td>${riga.cavalli}</td>
+                            <td>${riga.quota}</td>
+                            <td>${riga.tris || '-'}</td>
                         </tr>
                     `).join('')}
                 </table>
@@ -610,51 +615,69 @@ function mostraRisultatiRicerca(risultati, tipo) {
         mostraAlertCentrale(tipo, 0);
     }
 }
+
+function azzeraRicerca() {
+    const risultatiDiv = document.getElementById('risultatiRicerca');
+    const risultatiContainer = document.getElemententById('risultatiContainer');
+    risultatiContainer.innerHTML = '';
+    risultatiDiv.style.display = 'none';
+    mostraMessaggio('✅ Ricerca azzerata', 'info');
+}
+
 async function salvaDati() {
     const righe = document.querySelectorAll('#mainTable tr');
-    const quotaTris = document.querySelector('.quota-tris').value.trim();
-    const cavalli = [];
-    const quote = [];
-    const trisSelects = [1, 3, 5].map(index => righe[index].querySelector('.tris-select'));
-    const trisValues = trisSelects.map(select => select.value);
+    const quotaTris = document.querySelector('.quota-tris').value;
 
-    // Verifica la quota tris
     if (!quotaTris) {
-        mostraMesMessaggio('⚠️ Inserisci la quota tris!', 'warning');
+        mostraMessaggio('⚠️ Inserisci la quota tris!', 'warning');
         return;
     }
 
-    // Verifica che tutti i posti della tris siano selezionati
-    if (trisValues.some(value => !value)) {
+    // Verifica le selezioni della tris nelle righe 1, 3, 5
+    const trisRighe = [1, 3, 5].map(index => ({
+        numero: index,
+        select: righe[index].querySelector('.tris-select')
+    }));
+
+    const trisValori = trisRighe.map(t => ({
+        numero: t.numero,
+        valore: t.select ? t.select.value : ''
+    }));
+
+    if (trisValori.some(t => !t.valore)) {
         mostraMessaggio('⚠️ Seleziona tutti i posti della tris!', 'warning');
         return;
     }
 
-    // Raccoglie i dati dei cavalli e quote
-    for (let i = 1; i <= 6; i++) {
-        const riga = righe[i];
-        const cavallo = riga.querySelector('.cavalli-input').value.trim();
-        const quota = riga.querySelector('.quota-input').value.trim();
-        
-        if (!cavallo || !quota) {
-            mostraMessaggio('⚠️ Inserisci tutti i cavalli e le quote!', 'warning');
-            return;
-        }
+    const corsa = {
+        id: Date.now(),
+        trisVincente: {
+            primo: trisValori[0].numero.toString(),
+            secondo: trisValori[1].numero.toString(),
+            terzo: trisValori[2].numero.toString()
+        },
+        quotaTris: quotaTris,
+        dati: []
+    };
 
-        cavalli.push(cavallo);
-        quote.push(quota);
+    for (let i = 1; i < 7; i++) {
+        const riga = righe[i];
+        const cavallo = riga.querySelector('.cavalli-input').value;
+        const quota = riga.querySelector('.quota-input').value;
+        const trisSelect = riga.querySelector('.tris-select');
+        
+        corsa.dati.push({
+            numero: i.toString(),
+            cavalli: cavallo,
+            quota: quota,
+            tris: trisSelect ? trisSelect.value : ''
+        });
     }
 
-    // Costruisce la stringa della tris vincente
-    const trisString = trisValues.join('-');
-
-    const corsa = {
-        data: new Date().toISOString(),
-        trisVincente: trisString,
-        cavalli: cavalli,
-        quote: quote,
-        quotaTris: quotaTris
-    };
+    if (corsa.dati.every(riga => !riga.cavalli)) {
+        mostraMessaggio('⚠️ Inserisci almeno un cavallo!', 'warning');
+        return;
+    }
 
     mostraMessaggio('⌛ Salvataggio in corso...', 'info');
 
@@ -681,7 +704,10 @@ async function salvaInGoogleSheets(corsa) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(corsa)
+            body: JSON.stringify({
+                ...corsa,
+                trisVincente: JSON.stringify(corsa.trisVincente)
+            })
         });
 
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -691,15 +717,16 @@ async function salvaInGoogleSheets(corsa) {
         return false;
     }
 }
-// Theme Toggle
-const themeToggle = document.getElementById('themeToggle');
-themeToggle.checked = localStorage.getItem('theme') === 'dark';
 
-function toggleTheme() {
-    const html = document.documentElement;
-    const isDark = themeToggle.checked;
-    html.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+function pulisciForm() {
+    const inputs = document.querySelectorAll('#mainTable input, #mainTable select');
+    inputs.forEach(input => {
+        if (input.tagName === 'SELECT') {
+            input.selectedIndex = 0;
+        } else {
+            input.value = '';
+        }
+    });
 }
 
 // Event Listeners
@@ -721,13 +748,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // Gestione input numerici
-    document.querySelectorAll('input[type="number"]').forEach(input => {
-        input.addEventListener('input', function() {
-            if (this.value < 0) this.value = 0;
-        });
-    });
 });
 
 // Inizializzazione all'avvio
@@ -738,5 +758,3 @@ window.onload = async function() {
     setInterval(leggiDaGoogleSheets, 60000);
 };
 </script>
-</body>
-</html>
