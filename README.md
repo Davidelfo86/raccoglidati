@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html data-theme="light">
 <head>
+ >
     <title>Corse Cavalli</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <style>
@@ -25,14 +26,13 @@
         --alert-warning: #d32f2f;
         --alert-info: #1976d2;
     }
-<style>
-    body {
+   body {
         font-family: Arial, sans-serif;
         max-width: 1200px;
         margin: 0 auto;
         padding: 20px;
         background-color: var(--bg-color);
-        color: var(--text-color);
+           color: var(--text-color);
         transition: all 0.3s ease;
     }
 
@@ -86,8 +86,20 @@
         cursor: pointer;
         transition: opacity 0.3s ease;
     }
+
+    button:hover {
+        opacity: 0.9;
+    }
+
+    .btn-salva {
+        background-color: var(--button-primary);
+    }
+
+    .btn-cerca {
+        background-color: var(--button-secondary);
+    }
 </style>
-<style>
+<st<style>
     .theme-switch {
         display: flex;
         align-items: center;
@@ -137,14 +149,6 @@
 
     input:checked + .slider:before {
         transform: translateX(26px);
-    }
-
-    .btn-salva {
-        background-color: var(--button-primary);
-    }
-
-    .btn-cerca {
-        backgrkground-color: var(--button-secondary);
     }
 
     .alert {
@@ -248,117 +252,91 @@
     
     <div id="messageBox"></div>
     <div id="syncIndicator" class="sync-indicator">🔄 Sincronizzazione...</div>
-  <table id="mainTable">
+<table id="mainTable">
         <tr>
             <th></th>
-            <th>Cavalvalli</th>
+            <th>Cavalli</th>
             <th>Quote</th>
             <th>Tris</th>
         </tr>
-        <!-- Riga 1: cavallo, quota, primo posto tris -->
+        <!-- Riga 1 -->
         <tr>
             <td>1</td>
             <td>
                 <div class="cavalli-input-container">
-                    <input type="text" class="cavalli-input" placeholder="Inserisci il cavallo...">
+                    <input type="text" class="cavallilli-input" placeholder="Inserisci il cavallo...">
                 </div>
             </td>
-            <td><input type="number" inputmode="decimal" class="quota-input"></td>
+            <td><input type="numnumber" inputmode="decimal" class="quota-input" step="0.01"></td>
             <td>
-<select class="tris-select">
-    <option value="">-</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-</select>
+                <select class="tris-select">
+                    <option value="">-</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
             </td>
         </tr>
-        <!-- Riga 2: solo cavallo e quota -->
+        <  <!-- Righe 2-6 con stessa struttura -->
         <tr>
             <td>2</td>
-            <td>
-                <div class="cavalli-input-container">
-                    <input type="text" class="cavalli-input">
-                </div>
-            </td>
-            <td><input type="number" inputmode="decimal" class="quota-input"></td>
-            <td></td>
+            <td><div class="cavalli-input-container"><input type="text" class="cavalli-input"></div></td>
+            <td><input type="number" inputmode=de="decimal" class="quota-input" step="0.01"></td>
+            <td><select class="tris-select">
+                <option on value="">-</option>
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select></td>
         </tr>
-        <!-- Riga 3: cavallo, quota, secondo posto tris -->
         <tr>
             <td>3</td>
-               <td>
-                <div class="cavalli-input-container">
-                    <input type="text" class="cavalli-input">
-                </div>
-            </td>
-            <td><input type="number" inputmode="decimal" class="quota-input"></td>
-            <td>
-                <select class="tris-select">
-    <option value="">-</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-</select>
-                </select>
-            </td>
+            <td><div class="cavalli-input-container"><input type="text" class="cavalli-input"></div></td>
+            <td><input type="number" inputmode="decimal" class="quota-input" step="0.01"></td>
+            <td><select class="tris-select">
+                <option value="">-</option>
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select></td>
         </tr>
-        <!-- Riga 4: solo cavallo e quota -->
         <tr>
             <td>4</td>
-            <td>
-                <div class="cavalli-input-container">
-                    <input type="text" class="cavalli-input">
-                </div>
-            </td>
-            <td><input type="number" inputmode="decimal" class="quota-input"></td>
-            <td></td>
+            <td><div class="cavalli-input-container"><input type="text" class="cavalli-input"></div></td>
+            <td><input type="number" inputmode="decimal" class="quota-input" step="0.01"></td>
+            <td><select class="tris-select">
+                <option value="">-</option>
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select></td>
         </tr>
-        <!-- Riga 5: cavallo, quota, terzo posto tris -->
         <tr>
             <td>5</td>
-            <td>
-                <div class="cavalli-input-container">
-                    <input type="text" class="cavalli-input">
-                </div>
-            </td>
-            <td><input type="number" inputmode="decimal" class="quota-input"></td>
-            <td>
-                <select class="tris-select">
-    <option value="">-</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-</select>
-                </select>
-            </td>
+            <td><div class="cavalli-input-container"><input type="text" class="cavalli-input"></div></td>
+            <td><input type="number" inputmode="decimal" class="quota-input" step="0.01"></td>
+            <td><select class="tris-select">
+                <option value="">-</option>
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select></td>
         </tr>
-        <!-- Riga 6: solo cavallo e quota -->
         <tr>
             <td>6</td>
-            <td>
-                <div class="cavalli-input-container">
-                    <input type="text" class="cavalli-input">
-                </div>
-            </td>
-            <td><input type="number" inputmode="decimal" class="quota-input"></td>
-            <td></td>
+            <td><div class="cavalli-input-container"><input type="text" class="cavalli-input"></div></td>
+            <td><input type="number" inputmode="decimal" class="quota-input" step="0.01"></td>
+            <td><select class="tris-select">
+                <option value="">-</option>
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select></td>
         </tr>
         <!-- Riga Quota Tris -->
         <tr>
             <td></td>
             <td>Quota Tris</td>
             <td colspan="2">
-                <input type="number" inputmode="decimal" class="quota-tris" style="width: 95%">
+                <input type="number" inputmode="decimal" class="quota-tris" step="0.01" style="width: 95%">
             </td>
         </tr>
     </table>
@@ -390,9 +368,11 @@ async function leggiDaGoogleSheets() {
         const data = await response.json();
         if (data && data.corse) {
             corse = data.corse.map(corsa => ({
-                ...corsa,
-                trisVincente: typeof corsa.trisVincente === 'string' ? 
-                    JSON.parse(corsa.trisVincente) : corsa.trisVincente
+                data: corsa.data,
+                trisVincente: corsa.trisVincente,
+                cavalli: corsa.cavalli,
+                quote: corsa.quote,
+                quotaTris: corsa.quotaTris
             }));
         }
         document.getElementById('syncIndicator').classList.remove('visible');
@@ -463,7 +443,7 @@ function pulisciForm() {
 }
 
 function azzeraRicerca() {
-    const risultatiDiv = document.getElementById('risultatiRicerca');
+    const risultatiDtiDiv = document.getElementById('risultatiRicerca');
     const risultatiContainer = document.getElementById('risultatiContainer');
     risultatiContainer.innerHTML = '';
     risultatiDiv.style.display = 'none';
@@ -471,47 +451,49 @@ function azzeraRicerca() {
 }
 function cercaGara() {
     const righe = document.querySelectorAll('#mainTable tr');
-    const datiAttuali = [];
+    const cavalliAttuali = [];
+    const quoteAttuali = [];
 
-    // Raccoglie i dati dalla tabella
-    for (let i = 1; i < 7; i++) {
+    // Raccoglie i dati della tabella
+    for (let i = 1; i <= 6; i++) {
         const riga = righe[i];
-        const cavallo = riga.querySelector('.cavalli-input').value;
-        const quota = riga.querySelector('.quota-input').value;
+        const cavallo = riga.querySelector('.cavalli-input').value.trim();
+        const quota = riga.querySelector('.quota-input').value.trim();
         
         if (!cavallo || !quota) {
             mostraMessaggio('⚠️ Per cercare una gara devi inserire tutti i cavalli e tutte le quote!', 'warning');
             return;
         }
 
-        datiAttuali.push({
-            cavallo: cavallo,
-            quota: quota
-        });
+        cavalliAttuali.push(cavallo);
+        quoteAttuali.push(quota);
     }
 
     const risultati = corse.filter(corsa => {
-        return corsa.dati.every((rigaCorsa, index) => {
-            const rigaAttuale = datiAttuali[index];
-            return rigaCorsa.cavallo === rigaAttuale.cavallo &&
-                   rigaCorsa.quota === rigaAttuale.quota;
-        });
+        return corsa.cavalli.every((cavallo, index) => cavallo === cavalliAttuali[index]) &&
+               corsa.quote.every((quota, index) => quota === quoteAttuali[index]);
     });
 
     mostraRisultatiRicerca(risultati, 'gara');
 }
 
 function cercaCavallo() {
-    const inputs = document.querySelectorAll('.cavalli-input');
+    const righe = document.querySelectorAll('#mainTable tr');
     let corsiaRicerca = 0;
     let cavalloDaCercare = '';
+    let quotaDaCercare = '';
 
-    inputs.forEach((input, index) => {
-        if (input.value.trim()) {
-            corsiaRicerca = index + 1;
-            cavalloDaCercare = input.value.trim();
+    // Trova il primo cavallo inserito
+    for (let i = 1; i <= 6; i++) {
+        const cavallo = righe[i].querySelector('.cavalli-input').value.trim();
+        const quota = righe[i].querySelector('.quota-input').value.trim();
+        if (cavallo) {
+            corsiaRicerca = i - 1; // Indice base 0
+            cavalloDaCercare = cavallo;
+            quotaDaCercare = quota;
+            break;
         }
-    });
+    }
 
     if (!cavalloDaCercare) {
         mostraMessaggio('⚠️ Inserisci un cavallo da cercare', 'warning');
@@ -519,9 +501,8 @@ function cercaCavallo() {
     }
 
     const risultati = corse.filter(corsa => {
-        const rigaCorrispondente = corsa.dati[corsiaRicerca - 1];
-        return rigaCorrispondente && 
-               rigaCorrispondente.cavallo.toLowerCase().includes(cavalloDaCercare.toLowerCase());
+        return corsa.cavalli[corsiaRicerca]?.toLowerCase() === cavalloDaCercare.toLowerCase() &&
+               (!quotaDaCercare || corsa.quote[corsiaRicerca] === quotaDaCercare);
     });
 
     mostraRisultatiRicerca(risultati, 'cavallo');
@@ -531,11 +512,12 @@ function cercaQuote() {
     const righe = document.querySelectorAll('#mainTable tr');
     const quoteAttuali = [];
 
-    for (let i = 1; i < 7; i++) {
-        const quota = righe[i].querySelector('.quota-input').value;
+    // Raccoglie le quote inserite
+    for (let i = 1; i <= 6; i++) {
+        const quota = righe[i].querySelector('.quota-input').value.trim();
         if (quota) {
             quoteAttuali.push({
-                numero: i,
+                indice: i - 1,
                 quota: quota
             });
         }
@@ -547,10 +529,7 @@ function cercaQuote() {
     }
 
     const risultati = corse.filter(corsa => {
-        return quoteAttuali.every(quotaRiga => {
-            const rigaCorsa = corsa.dati[quotaRiga.numero - 1];
-            return rigaCorsa && rigaCorsa.quota === quotaRiga.quota;
-        });
+        return quoteAttuali.every(q => corsa.quote[q.indice] === q.quota);
     });
 
     mostraRisultatiRicerca(risultati, 'quote');
@@ -573,8 +552,8 @@ function mostraRisultatiRicerca(risultati, tipo) {
             
             resultDiv.innerHTML = `
                 <div style="background-color: #ff0000; color: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; text-align: center; font-size: 1.2em; font-weight: bold;">
-                    🎯 TRIS VINCENTE: ${risultato.trisVincente.primo}-${risultato.trisVincente.secondo}-${risultato.trisVincente.terzo}
-                    <br>
+                    📅 Data: ${new Date(risultato.data).toLocaleDateString()}<br>
+                    🎯 TRIS VINCENTE: ${risultato.trisVincente}<br>
                     💰 QUOTA TRIS: ${risultato.quotaTris}
                 </div>
                 <table style="width: 100%; margin-bottom: 10px;">
@@ -582,14 +561,12 @@ function mostraRisultatiRicerca(risultati, tipo) {
                         <th>Numero</th>
                         <th>Cavallo</th>
                         <th>Quota</th>
-                        <th>Tris</th>
                     </tr>
-                    ${risultato.dati.map(riga => `
+                    ${risultato.cavalli.map((cavallo, index) => `
                         <tr>
-                            <td>${riga.numero}</td>
-                            <td>${riga.cavallo}</td>
-                            <td>${riga.quota}</td>
-                            <td>${riga.tris || '-'}</td>
+                            <td>${index + 1}</td>
+                            <td>${cavallo}</td>
+                            <td>${risultato.quote[index]}</td>
                         </tr>
                     `).join('')}
                 </table>
@@ -605,59 +582,57 @@ function mostraRisultatiRicerca(risultati, tipo) {
         mostraAlertCentrale(tipo, 0);
     }
 }
-}
 async function salvaDati() {
     const righe = document.querySelectorAll('#mainTable tr');
-    const quotaTris = document.querySelector('.quota-tris').value;
+    const quotaTris = document.querySelector('.quota-tris').value.trim();
+    const cavalli = [];
+    const quote = [];
+    let trisVincente = [];
 
     if (!quotaTris) {
         mostraMessaggio('⚠️ Inserisci la quota tris!', 'warning');
         return;
     }
 
-    // Trova le righe con la tris selezionata
-    const trisSelezionate = Array.from(document.querySelectorAll('.tris-select'))
-        .filter(select => select.value)
-        .map(select => ({
-            numero: select.closest('tr').cells[0].textContent,
-            posizione: select.value
-        }));
-
-    if (trisSelezionate.length !== 3) {
-        mostraMessaggio('⚠️ Seleziona tutti e tre i posti della tris!', 'warning');
-        return;
-    }
-
-    const corsa = {
-        id: Date.now(),
-        quotaTris: quotaTris,
-        trisVincente: {
-            primo: trisSelezionate.find(t => t.posizione === '1').numero,
-            secondo: trisSelezionate.find(t => t.posizione === '2').numero,
-            terzo: trisSelezionate.find(t => t.posizione === '3').numero
-        },
-        dati: []
-    };
-
-    // Raccoglie i dati di ogni riga
-    for (let i = 1; i < 7; i++) {
+    // Raccoglie i dati dalla tabella
+    for (let i = 1; i <= 6; i++) {
         const riga = righe[i];
-        const cavallo = riga.querySelector('.cavalli-input').value;
-        const quota = riga.querySelector('.quota-input').value;
+        const cavallo = riga.querySelector('.cavalli-input').value.trim();
+        const quota = riga.querySelector('.quota-input').value.trim();
         const trisSelect = riga.querySelector('.tris-select');
         
-        corsa.dati.push({
-            numero: i,
-            cavallo: cavallo,
-            quota: quota,
-            tris: trisSelect ? trisSelect.value : ''
-        });
+        if (!cavallo || !quota) {
+            mostraMessaggio('⚠️ Inserisci tutti i cavalli e le quote!', 'warning');
+            return;
+        }
+
+        cavalli.push(cavallo);
+        quote.push(quota);
+
+        if (trisSelect && trisSelect.value) {
+            trisVincente.push({
+                posizione: parseInt(trisSelect.value),
+                numero: i
+            });
+        }
     }
 
-    if (corsa.dati.every(riga => !riga.cavallo)) {
-        mostraMessaggio('⚠️ Inserisci almeno un cavallo!', 'warning');
+    if (trisVincente.length !== 3) {
+        mostraMessaggio('⚠️ Seleziona tutti i posti della tris!', 'warning');
         return;
     }
+
+    // Ordina la tris per posizione
+    trisVincente.sort((a, b) => a.posizione - b.posizione);
+    const trisString = trisVincente.map(t => t.numero).join('-');
+
+    const corsa = {
+        data: new Date().toISOString(),
+        trisVincente: trisString,
+        cavalli: cavalli,
+        quote: quote,
+        quotaTris: quotaTris
+    };
 
     mostraMessaggio('⌛ Salvataggio in corso...', 'info');
 
@@ -684,10 +659,7 @@ async function salvaInGoogleSheets(corsa) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                ...corsa,
-                trisVincente: JSON.stringify(corsa.trisVincente)
-            })
+            body: JSON.stringify(corsa)
         });
 
         await new Promise(resolve => setTimeout(resolve, 2000));
